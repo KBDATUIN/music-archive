@@ -8,6 +8,16 @@
  */
 
 let currentView = 'pending';
+let _adminSb = null;
+
+function getAdminSupabase() {
+  if (_adminSb) return _adminSb;
+  if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+    _adminSb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    return _adminSb;
+  }
+  return null;
+}
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
@@ -30,21 +40,21 @@ function initDomRefs() {
    ======================================================================== */
 
 async function checkAuth() {
-  const sb = getSupabase();
+  const sb = getAdminSupabase();
   if (!sb) return false;
   const { data: { session } } = await sb.auth.getSession();
   return !!session;
 }
 
 async function loginAdmin(email, password) {
-  const sb = getSupabase();
+  const sb = getAdminSupabase();
   if (!sb) return { error: 'Supabase not configured' };
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   return { error: error?.message || null };
 }
 
 async function logoutAdmin() {
-  const sb = getSupabase();
+  const sb = getAdminSupabase();
   if (!sb) return;
   await sb.auth.signOut();
 }

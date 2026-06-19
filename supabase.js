@@ -12,7 +12,9 @@ let _sb = null;
 function getSupabase() {
   if (_sb) return _sb;
   if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
-    _sb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    _sb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+      auth: { persistSession: false }
+    });
     return _sb;
   }
   console.error('Supabase client not available. Check config and script loading order.');
