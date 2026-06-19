@@ -83,7 +83,7 @@ async function renderPending() {
       <p><strong>Genres:</strong> ${sub.genres.map(escapeHtml).join(', ')}</p>
       <p><strong>Summary:</strong> ${escapeHtml(sub.summary)}</p>
       <p><strong>Sources:</strong> ${sub.sources.map(s => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label)}</a>`).join(', ')}</p>
-      ${sub.submitterNote ? `<p><strong>Submitter note:</strong> ${escapeHtml(sub.submitterNote)}</p>` : ''}
+      ${sub.submitterNote ? `<p><strong>Admin note:</strong> ${escapeHtml(sub.submitterNote)}</p>` : ''}
       ${renderAdminImages(sub, escapeHtml(sub.name))}
       <p><strong>Submitted:</strong> ${new Date(sub.submittedAt).toLocaleString()}</p>
       <div class="admin-actions">
