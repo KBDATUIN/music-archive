@@ -106,6 +106,9 @@ async function getAllEntries(filters = {}) {
   if (filters.status && filters.status.length > 0) {
     query = query.in('status', filters.status);
   }
+  if (filters.yearStart) {
+    query = query.gte('date', `${filters.yearStart}-01-01`);
+  }
   if (filters.yearEnd) {
     query = query.lte('date', `${filters.yearEnd}-12-31`);
   }

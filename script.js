@@ -27,7 +27,8 @@ const filters = {
   search: '',
   genres: [],
   status: [],
-  yearEnd: new Date().getFullYear()
+  yearStart: null,
+  yearEnd: null
 };
 
 let currentView = 'grid';
@@ -56,8 +57,10 @@ function initDomRefs() {
   dom.searchInput = $('#search-input');
   dom.genreChips = $('#genre-chips');
   dom.statusFilters = $('#status-filters');
-  dom.yearSlider = $('#year-slider');
-  dom.yearDisplay = $('#year-display');
+  dom.yearFrom = $('#year-from');
+  dom.yearTo = $('#year-to');
+  dom.sortSelect = $('#sort-select');
+  dom.resultCount = $('#result-count');
   dom.filterCountBadge = $('#filter-count-badge');
   dom.clearAllBtn = $('#clear-all-btn');
   dom.viewTabs = $('#view-tabs');
@@ -80,8 +83,6 @@ function initDomRefs() {
   dom.submitBtn = $('#submit-btn');
   dom.genreSelect = $('#entry-genres');
   dom.formGenreChips = $('#form-genre-chips');
-  dom.customGenreInput = $('#custom-genre-input');
-  dom.addCustomGenreBtn = $('#add-custom-genre-btn');
   dom.selectedGenreTags = $('#selected-genre-tags');
   dom.imageInput = $('#entry-image-input');
   dom.imagesPreviewGrid = $('#images-preview-grid');
@@ -101,6 +102,7 @@ async function loadFilteredEntries() {
     search: filters.search,
     genres: filters.genres,
     status: filters.status,
+    yearStart: filters.yearStart,
     yearEnd: filters.yearEnd,
     sortDir: sortBy === 'date-asc' ? 'asc' : 'desc'
   };
@@ -174,7 +176,8 @@ function filtersToQuery() {
   if (filters.search) params.set('search', filters.search);
   if (filters.genres.length) params.set('genre', filters.genres.join(','));
   if (filters.status.length) params.set('status', filters.status.join(','));
-  if (filters.yearEnd < new Date().getFullYear()) params.set('year', filters.yearEnd);
+  if (filters.yearStart) params.set('yearFrom', filters.yearStart);
+  if (filters.yearEnd) params.set('yearTo', filters.yearEnd);
   return params.toString();
 }
 
@@ -183,7 +186,8 @@ function applyFiltersFromQuery() {
   if (params.has('search')) filters.search = params.get('search');
   if (params.has('genre')) filters.genres = params.get('genre').split(',').filter(Boolean);
   if (params.has('status')) filters.status = params.get('status').split(',').filter(Boolean);
-  if (params.has('year')) filters.yearEnd = parseInt(params.get('year'), 10) || new Date().getFullYear();
+  if (params.has('yearFrom')) filters.yearStart = parseInt(params.get('yearFrom'), 10) || null;
+  if (params.has('yearTo')) filters.yearEnd = parseInt(params.get('yearTo'), 10) || null;
 }
 
 function syncUrlWithFilters() {
@@ -245,8 +249,44 @@ async function applyFilters() {
   await loadFilteredEntries();
   renderView();
   updateFilterBadge();
+  updateResultCount();
   updateSearchAndChips();
+  updateStatusChips();
   syncUrlWithFilters();
+}
+
+function updateStatusChips() {
+  if (!dom.statusFilters) return;
+  const counts = {};
+  fullEntries.forEach(e => { counts[e.status] = (counts[e.status] || 0) + 1; });
+  dom.statusFilters.innerHTML = '';
+  ['allegation', 'confirmed', 'resolved', 'disputed'].forEach(status => {
+    const chip = document.createElement('button');
+    chip.className = 'status-chip';
+    chip.dataset.status = status;
+    const count = counts[status] || 0;
+    chip.innerHTML = `${capitalize(status)} <span class="status-count">${count}</span>`;
+    chip.setAttribute('aria-label', `Filter by status: ${status} (${count} entries)`);
+    chip.classList.toggle('active', filters.status.includes(status));
+    chip.addEventListener('click', () => {
+      const idx = filters.status.indexOf(status);
+      if (idx > -1) filters.status.splice(idx, 1);
+      else filters.status.push(status);
+      applyFilters();
+    });
+    dom.statusFilters.appendChild(chip);
+  });
+}
+
+function updateResultCount() {
+  if (!dom.resultCount) return;
+  const total = fullEntries.length;
+  const shown = filteredEntries.length;
+  if (shown === total) {
+    dom.resultCount.textContent = `${total} entr${total === 1 ? 'y' : 'ies'}`;
+  } else {
+    dom.resultCount.textContent = `Showing ${shown} of ${total} entr${total === 1 ? 'y' : 'ies'}`;
+  }
 }
 
 function updateSearchAndChips() {
@@ -256,13 +296,17 @@ function updateSearchAndChips() {
       chip.classList.toggle('active', filters.status.includes(chip.dataset.status));
     });
   }
-  if (dom.yearSlider) dom.yearSlider.value = filters.yearEnd;
-  if (dom.yearDisplay) dom.yearDisplay.textContent = filters.yearEnd;
+  if (dom.yearFrom && dom.yearFrom.value !== String(filters.yearStart || '')) {
+    dom.yearFrom.value = filters.yearStart || '';
+  }
+  if (dom.yearTo && dom.yearTo.value !== String(filters.yearEnd || '')) {
+    dom.yearTo.value = filters.yearEnd || '';
+  }
 }
 
 function updateFilterBadge() {
   const count = filters.genres.length + filters.status.length + (filters.search ? 1 : 0) +
-    (filters.yearEnd < getYearRange().max ? 1 : 0);
+    (filters.yearStart || filters.yearEnd ? 1 : 0);
   const badge = dom.filterCountBadge;
   if (badge) {
     const countEl = badge.querySelector('.count');
@@ -279,7 +323,11 @@ function clearAllFilters() {
   filters.search = '';
   filters.genres = [];
   filters.status = [];
-  filters.yearEnd = getYearRange().max;
+  filters.yearStart = null;
+  filters.yearEnd = null;
+  if (dom.yearFrom) dom.yearFrom.value = '';
+  if (dom.yearTo) dom.yearTo.value = '';
+  dom.searchInput.value = '';
   applyFilters();
 }
 
@@ -330,7 +378,7 @@ function createEntryCard(entry) {
     wrapper.className = 'entry-card-image-wrapper';
     const img = document.createElement('img');
     img.src = cardImages[0];
-    img.alt = `${entry.name} — reference image (blurred by default, click to reveal)`;
+    img.alt = `Reference photo of ${entry.name} — click to view`;
     img.loading = 'lazy';
     img.decoding = 'async';
     if (isRevealed) img.classList.add('revealed');
@@ -385,6 +433,10 @@ function createEntryCard(entry) {
   srcCount.className = 'entry-card-source-count';
   srcCount.textContent = `${entry.sources.length} source${entry.sources.length !== 1 ? 's' : ''}`;
   footer.appendChild(srcCount);
+  const viewLabel = document.createElement('span');
+  viewLabel.className = 'entry-card-view-link';
+  viewLabel.textContent = 'View details →';
+  footer.appendChild(viewLabel);
   card.appendChild(footer);
 
   card.addEventListener('click', () => openModal(entry));
@@ -1628,7 +1680,6 @@ function initSubmissionForm() {
 
   // Genre picker
   const selectedGenres = [];
-  let pickerFocused = false;
 
   function updateGenreTags() {
     dom.selectedGenreTags.innerHTML = selectedGenres.map((g, i) =>
@@ -1684,26 +1735,21 @@ function initSubmissionForm() {
     dom.formGenreChips.appendChild(chip);
   });
 
-  dom.customGenreInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addGenre(dom.customGenreInput.value);
-      dom.customGenreInput.value = '';
-    }
+  // "+ Add custom" chip
+  const customChip = document.createElement('button');
+  customChip.type = 'button';
+  customChip.className = 'genre-chip add-custom-chip';
+  customChip.textContent = '+ Add custom';
+  customChip.addEventListener('click', () => {
+    const custom = prompt('Enter a custom genre:');
+    if (custom) addGenre(custom);
   });
-
-  dom.addCustomGenreBtn.addEventListener('click', () => {
-    addGenre(dom.customGenreInput.value);
-    dom.customGenreInput.value = '';
-  });
+  dom.formGenreChips.appendChild(customChip);
 
   dom.summaryInput.addEventListener('input', () => {
     const len = dom.summaryInput.value.length;
-    dom.charCount.textContent = `${len} characters`;
-    dom.charCount.className = 'char-count' + (len >= 50 ? ' valid' : '');
-    if (len > 0 && len < 50) {
-      dom.charCount.className += ' invalid';
-    }
+    dom.charCount.textContent = `${len} / 50 min`;
+    dom.charCount.className = 'char-count' + (len >= 50 ? ' valid' : '') + (len > 0 && len < 50 ? ' invalid' : '');
   });
 
   dom.addSourceBtn.addEventListener('click', () => {
@@ -1743,7 +1789,7 @@ function initSubmissionForm() {
     if (!type) { showFieldError(dom.formElement.querySelector('#entry-type'), 'Please select a type.'); hasError = true; }
 
     const formGenres = selectedGenres;
-    if (formGenres.length === 0) { showFieldError(dom.genreSelect, 'Please select at least one genre.'); hasError = true; }
+    if (formGenres.length === 0) { showFieldError($('#genre-picker'), 'Please select or add at least one genre.'); hasError = true; }
 
     const date = dom.formElement.querySelector('#entry-date').value;
     if (!date) { showFieldError(dom.formElement.querySelector('#entry-date'), 'Date is required.'); hasError = true; }
@@ -1826,6 +1872,7 @@ function initSubmissionForm() {
       setLoading(dom.submitBtn, false, 'Submit for Review');
       dom.formElement.style.display = 'none';
       dom.submitConfirm.classList.add('visible');
+      dom.submitConfirm.scrollIntoView({ behavior: 'smooth', block: 'center' });
       showToast('Submission received! It will be reviewed by the editorial team.');
     } else {
       setLoading(dom.submitBtn, false, 'Submit for Review');
@@ -1908,45 +1955,45 @@ function initNavigation() {
   });
 
   // Sort control
-  const filterRow = document.querySelector('.filter-row');
-  if (filterRow) {
-    const sortGroup = document.createElement('div');
-    sortGroup.className = 'filter-group';
-    sortGroup.innerHTML = `<label>Sort</label><div class="sort-wrapper"><select class="sort-select" id="sort-select" aria-label="Sort entries"><option value="date-desc">Newest first</option><option value="date-asc">Oldest first</option><option value="name-asc">Name A–Z</option><option value="name-desc">Name Z–A</option></select></div>`;
-    filterRow.appendChild(sortGroup);
-    const sortSelect = sortGroup.querySelector('.sort-select');
-    sortSelect.value = sortBy;
-    sortSelect.addEventListener('change', () => { sortBy = sortSelect.value; applyFilters(); });
+  if (dom.sortSelect) {
+    dom.sortSelect.value = sortBy;
+    dom.sortSelect.addEventListener('change', () => { sortBy = dom.sortSelect.value; applyFilters(); });
   }
 
-  // Status filters
-  ['allegation', 'confirmed', 'resolved', 'disputed'].forEach(status => {
-    const chip = document.createElement('button');
-    chip.className = 'status-chip';
-    chip.dataset.status = status;
-    chip.textContent = capitalize(status);
-    chip.setAttribute('aria-label', `Filter by status: ${status}`);
-    chip.addEventListener('click', () => {
-      const idx = filters.status.indexOf(status);
-      if (idx > -1) filters.status.splice(idx, 1);
-      else filters.status.push(status);
-      applyFilters();
-    });
-    dom.statusFilters.appendChild(chip);
-  });
+  // Status filters with counts
+  updateStatusChips();
 
-  // Year slider
-  const { min, max } = getYearRange();
-  dom.yearSlider.min = min;
-  dom.yearSlider.max = max;
-  dom.yearSlider.value = filters.yearEnd || max;
-  dom.yearDisplay.textContent = filters.yearEnd || max;
+  // Year From/To dropdowns
+  function populateYearSelect(sel, exclude) {
+    sel.innerHTML = '<option value="">' + (sel === dom.yearFrom ? 'From' : 'To') + '</option>';
+    const { min, max } = getYearRange();
+    for (let y = max; y >= min; y--) {
+      if (exclude && exclude.includes(y)) continue;
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      sel.appendChild(opt);
+    }
+  }
+  populateYearSelect(dom.yearFrom);
+  populateYearSelect(dom.yearTo);
 
-  dom.yearSlider.addEventListener('input', () => {
-    filters.yearEnd = parseInt(dom.yearSlider.value, 10);
-    dom.yearDisplay.textContent = filters.yearEnd;
+  dom.yearFrom.addEventListener('change', () => {
+    filters.yearStart = dom.yearFrom.value ? parseInt(dom.yearFrom.value, 10) : null;
+    if (dom.yearFrom.value && dom.yearTo.value && parseInt(dom.yearFrom.value) > parseInt(dom.yearTo.value)) {
+      dom.yearTo.value = dom.yearFrom.value;
+      filters.yearEnd = parseInt(dom.yearFrom.value);
+    }
+    applyFilters();
   });
-  dom.yearSlider.addEventListener('change', () => { applyFilters(); });
+  dom.yearTo.addEventListener('change', () => {
+    filters.yearEnd = dom.yearTo.value ? parseInt(dom.yearTo.value, 10) : null;
+    if (dom.yearFrom.value && dom.yearTo.value && parseInt(dom.yearFrom.value) > parseInt(dom.yearTo.value)) {
+      dom.yearFrom.value = dom.yearTo.value;
+      filters.yearStart = parseInt(dom.yearTo.value);
+    }
+    applyFilters();
+  });
 
   dom.clearAllBtn.addEventListener('click', clearAllFilters);
 

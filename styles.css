@@ -212,10 +212,10 @@ img {
   color: var(--color-text);
 }
 
-.nav-btn.active {
+.nav-btn.active,
+.nav-btn[aria-current="page"] {
   color: var(--color-text);
-  background: var(--color-accent-dim);
-  border: 1px solid var(--color-border-accent);
+  background: var(--color-surface-elevated);
 }
 
 /* Back-link in admin nav — visually distinct from view-switch nav buttons */
@@ -643,6 +643,59 @@ img {
   animation: chipPop 200ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+.status-count {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.6;
+  margin-left: 0.2rem;
+}
+
+.year-range-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.year-range-wrapper select {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.year-range-sep {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.result-count {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+
 @keyframes chipPop {
   0% {
     transform: scale(1);
@@ -895,6 +948,22 @@ img {
   margin-bottom: 0;
 }
 
+.skeleton-line-wide-short {
+  height: 0.6rem;
+  border-radius: 4px;
+  background: var(--color-surface-active);
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line-tiny {
+  height: 0.6rem;
+  border-radius: 4px;
+  background: var(--color-surface-active);
+  width: 20%;
+  margin: 0;
+}
+
 .skeleton-genres {
   display: flex;
   gap: 0.4rem;
@@ -1091,6 +1160,18 @@ img {
 .entry-card-source-count {
   font-size: 0.75rem;
   color: var(--color-text-muted);
+}
+
+.entry-card-view-link {
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.entry-card:hover .entry-card-view-link,
+.entry-card:focus-within .entry-card-view-link {
+  opacity: 1;
 }
 
 /* ── Blurred Image ────────────────────────────────────────────────────── */
@@ -2140,6 +2221,12 @@ img {
 .timeline-year-header[data-status="confirmed"]::before  { background: var(--color-confirmed); }
 .timeline-year-header[data-status="resolved"]::before   { background: var(--color-resolved); }
 .timeline-year-header[data-status="disputed"]::before   { background: var(--color-disputed); }
+
+.timeline-year-header + hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: -0.5rem 0 1.25rem;
+}
 
 .timeline-entry {
   background: var(--color-surface);
