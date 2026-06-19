@@ -1138,6 +1138,13 @@ img {
   animation: viewFadeIn 300ms ease forwards;
 }
 
+.archive-grid > .empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .empty-state {
     animation: none;
