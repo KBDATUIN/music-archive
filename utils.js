@@ -8,6 +8,12 @@
  * @module utils
  */
 
+const GENRE_LIST = [
+  'R&B', 'alternative', 'emo', 'hardcore', 'hip hop', 'indie',
+  'metal', 'nu metal', 'oi', 'post-rock', 'punk', 'rap',
+  'rap metal', 'screamo', 'underground rap'
+];
+
 /* ========================================================================
    String Utilities
    ======================================================================== */

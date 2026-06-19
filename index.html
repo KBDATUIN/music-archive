@@ -308,12 +308,19 @@
           </select>
         </div>
 
-        <!-- Genres (multi-select) -->
+        <!-- Genres -->
         <div class="form-group">
-          <label for="entry-genres">Genre(s) <span class="required" aria-hidden="true">*</span></label>
-          <select id="entry-genres" multiple size="4" required>
-          </select>
-          <div class="form-hint">Hold Ctrl (Cmd on Mac) to select multiple genres.</div>
+          <label>Genre(s) <span class="required" aria-hidden="true">*</span></label>
+          <div class="genre-picker" id="genre-picker">
+            <div class="genre-chips" id="form-genre-chips"></div>
+            <div class="custom-genre-row">
+              <input type="text" id="custom-genre-input" placeholder="Type a custom genre and press Enter" aria-label="Add custom genre">
+              <button type="button" id="add-custom-genre-btn" class="btn btn-small">Add</button>
+            </div>
+            <div class="selected-genre-tags" id="selected-genre-tags"></div>
+          </div>
+          <input type="hidden" id="entry-genres" required>
+          <div class="form-hint">Click predefined genres or type your own. At least one genre required.</div>
         </div>
 
         <!-- Date -->

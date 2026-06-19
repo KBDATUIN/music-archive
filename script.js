@@ -79,6 +79,10 @@ function initDomRefs() {
   dom.submitterNote = $('#submitter-note');
   dom.submitBtn = $('#submit-btn');
   dom.genreSelect = $('#entry-genres');
+  dom.formGenreChips = $('#form-genre-chips');
+  dom.customGenreInput = $('#custom-genre-input');
+  dom.addCustomGenreBtn = $('#add-custom-genre-btn');
+  dom.selectedGenreTags = $('#selected-genre-tags');
   dom.imageInput = $('#entry-image-input');
   dom.imagesPreviewGrid = $('#images-preview-grid');
   dom.uploadedImages = [];
@@ -1599,6 +1603,77 @@ function initSubmissionForm() {
 
   dom.imageInput.addEventListener('change', handleImageUpload);
 
+  // Genre picker
+  const selectedGenres = [];
+  let pickerFocused = false;
+
+  function updateGenreTags() {
+    dom.selectedGenreTags.innerHTML = selectedGenres.map((g, i) =>
+      `<span class="genre-tag">${escapeHtml(g)}<button type="button" class="genre-tag-remove" data-index="${i}" aria-label="Remove genre ${escapeHtml(g)}">&times;</button></span>`
+    ).join('');
+    dom.selectedGenreTags.querySelectorAll('.genre-tag-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        selectedGenres.splice(idx, 1);
+        updateGenreTags();
+        syncChips();
+        updateHiddenInput();
+      });
+    });
+  }
+
+  function syncChips() {
+    dom.formGenreChips.querySelectorAll('.genre-chip').forEach(chip => {
+      chip.classList.toggle('active', selectedGenres.includes(chip.dataset.genre));
+    });
+  }
+
+  function updateHiddenInput() {
+    dom.genreSelect.value = selectedGenres.join(',');
+  }
+
+  function addGenre(genre) {
+    const g = genre.trim().toLowerCase();
+    if (!g || selectedGenres.includes(g)) return;
+    selectedGenres.push(g);
+    updateGenreTags();
+    syncChips();
+    updateHiddenInput();
+  }
+
+  GENRE_LIST.forEach(genre => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'genre-chip';
+    chip.dataset.genre = genre;
+    chip.textContent = genre;
+    chip.addEventListener('click', () => {
+      if (selectedGenres.includes(genre)) {
+        const idx = selectedGenres.indexOf(genre);
+        selectedGenres.splice(idx, 1);
+      } else {
+        selectedGenres.push(genre);
+      }
+      updateGenreTags();
+      syncChips();
+      updateHiddenInput();
+    });
+    dom.formGenreChips.appendChild(chip);
+  });
+
+  dom.customGenreInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addGenre(dom.customGenreInput.value);
+      dom.customGenreInput.value = '';
+    }
+  });
+
+  dom.addCustomGenreBtn.addEventListener('click', () => {
+    addGenre(dom.customGenreInput.value);
+    dom.customGenreInput.value = '';
+  });
+
   dom.summaryInput.addEventListener('input', () => {
     const len = dom.summaryInput.value.length;
     dom.charCount.textContent = `${len} characters`;
@@ -1644,8 +1719,8 @@ function initSubmissionForm() {
     const type = dom.formElement.querySelector('#entry-type').value;
     if (!type) { showFieldError(dom.formElement.querySelector('#entry-type'), 'Please select a type.'); hasError = true; }
 
-    const selectedGenres = [...dom.genreSelect.selectedOptions].map(o => o.value);
-    if (selectedGenres.length === 0) { showFieldError(dom.genreSelect, 'Please select at least one genre.'); hasError = true; }
+    const formGenres = selectedGenres;
+    if (formGenres.length === 0) { showFieldError(dom.genreSelect, 'Please select at least one genre.'); hasError = true; }
 
     const date = dom.formElement.querySelector('#entry-date').value;
     if (!date) { showFieldError(dom.formElement.querySelector('#entry-date'), 'Date is required.'); hasError = true; }
@@ -1721,6 +1796,10 @@ function initSubmissionForm() {
     dom.charCount.textContent = '0 characters';
 
     if (result) {
+      selectedGenres.length = 0;
+      updateGenreTags();
+      syncChips();
+      updateHiddenInput();
       setLoading(dom.submitBtn, false, 'Submit for Review');
       dom.formElement.style.display = 'none';
       dom.submitConfirm.classList.add('visible');
@@ -1848,15 +1927,6 @@ function initNavigation() {
 
   dom.clearAllBtn.addEventListener('click', clearAllFilters);
 
-  // Genre select (submission form)
-  if (dom.genreSelect) {
-    getAllGenres().forEach(g => {
-      const opt = document.createElement('option');
-      opt.value = g;
-      opt.textContent = g;
-      dom.genreSelect.appendChild(opt);
-    });
-  }
 }
 
 /* ========================================================================

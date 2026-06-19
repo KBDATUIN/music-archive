@@ -272,8 +272,7 @@ function getAllGenres() {
     window.fullEntries.forEach(e => e.genres.forEach(g => set.add(g)));
     return [...set].sort();
   }
-  return ['hip hop', 'punk', 'metal', 'emo', 'hardcore', 'indie', 'alternative', 'rap', 'R&B', 'rap metal', 'nu metal', 'screamo', 'post-rock', 'oi', 'underground rap'];
-}
+  return [...GENRE_LIST];
 
 /* ========================================================================
    View Switching
