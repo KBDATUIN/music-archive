@@ -66,7 +66,7 @@ function initDomRefs() {
   dom.modalContent = $('#modal-content');
   dom.hamburger = $('#hamburger-btn');
   dom.mainNav = $('#main-nav');
-  dom.emptyState = $('#empty-state');
+  dom.emptyState = { style: {} };
   dom.formElement = $('#submit-entry-form');
   dom.warningBanner = $('#warning-banner');
   dom.warningText = $('#warning-text');
@@ -292,13 +292,17 @@ function renderGrid() {
   dom.archiveGrid.innerHTML = '';
 
   if (filteredEntries.length === 0) {
-    dom.emptyState.style.display = 'block';
-    dom.emptyState.querySelector('h3').textContent = 'No flagged artists found';
-    dom.emptyState.querySelector('p').textContent = 'Try adjusting your filters, search query, or clear all filters to browse the full archive.';
+    dom.archiveGrid.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h3>No flagged artists found</h3>
+        <p>Try adjusting your filters, search query, or clear all filters to browse the full archive.</p>
+      </div>`;
     return;
   }
-
-  dom.emptyState.style.display = 'none';
 
   filteredEntries.forEach((entry, i) => {
     const card = createEntryCard(entry);
@@ -403,13 +407,17 @@ function renderTimeline() {
   dom.timelineView.innerHTML = '';
 
   if (filteredEntries.length === 0) {
-    dom.emptyState.style.display = 'block';
-    dom.emptyState.querySelector('h3').textContent = 'No flagged artists found';
-    dom.emptyState.querySelector('p').textContent = 'Try adjusting your filters, search query, or clear all filters to browse the full archive.';
+    dom.timelineView.innerHTML = `
+      <div class="empty-state" style="display:block;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h3>No flagged artists found</h3>
+        <p>Try adjusting your filters, search query, or clear all filters to browse the full archive.</p>
+      </div>`;
     return;
   }
-
-  dom.emptyState.style.display = 'none';
 
   // Wrap timeline in .timeline class so the CSS connector line renders
   const timelineWrapper = document.createElement('div');
@@ -881,7 +889,7 @@ function renderView() {
     case 'timeline': dom.timelineView.style.display = 'block'; renderTimeline(); break;
     case 'stats': dom.statsPanel.style.display = 'block'; renderStats(); break;
     case 'admin': dom.adminPanel.style.display = 'block'; renderAdmin(); break;
-    case 'submit': dom.submissionForm.style.display = 'block'; dom.emptyState.style.display = 'none'; break;
+    case 'submit': dom.submissionForm.style.display = 'block'; break;
     default: dom.gridPanel.style.display = 'block'; renderGrid();
   }
 }
