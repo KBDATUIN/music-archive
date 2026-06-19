@@ -1752,7 +1752,7 @@ function initSubmissionForm() {
     const group = document.createElement('div');
     group.className = 'source-url-group';
     const sourceCount = $$('.source-url', dom.formElement).length + 1;
-    group.innerHTML = `<input type="url" class="source-url" placeholder="https://example.com/article" aria-label="Source URL ${sourceCount}" required><button type="button" class="remove-source" aria-label="Remove source ${sourceCount}">&times;</button>`;
+    group.innerHTML = `<input type="url" class="source-url" placeholder="https://example.com/article" aria-label="Source URL ${sourceCount}"><button type="button" class="remove-source" aria-label="Remove source ${sourceCount}">&times;</button>`;
     group.querySelector('.remove-source').addEventListener('click', () => group.remove());
     dom.sourceContainer.insertBefore(group, dom.addSourceBtn);
   });
