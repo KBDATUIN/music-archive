@@ -273,6 +273,7 @@ function getAllGenres() {
     return [...set].sort();
   }
   return [...GENRE_LIST];
+}
 
 /* ========================================================================
    View Switching
