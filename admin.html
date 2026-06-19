@@ -13,9 +13,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
 
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:;">
+
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Hide admin content until JS verifies auth — prevents flash of unprotected UI */
+    .js-admin-content { display: none; }
+    .js-admin-content.ready { display: block; }
+    .js-login-only { display: none; }
+  </style>
 </head>
-<body>
+<body style="display:none;">
 
   <!-- ================================================================
        Admin Header
@@ -39,6 +47,8 @@
       <nav class="main-nav" id="main-nav" aria-label="Admin navigation">
         <button class="nav-btn active" data-view="pending" aria-current="page">Pending</button>
         <button class="nav-btn" data-view="approved">Approved</button>
+        <button class="nav-btn" id="admin-export-btn" style="color:var(--color-text-muted);font-size:0.78rem;">Export</button>
+        <button class="nav-btn" id="admin-logout-btn" style="color:var(--color-text-muted);font-size:0.78rem;">Sign Out</button>
         <a href="index.html" class="nav-btn nav-back-link" style="text-decoration:none;">&larr; Main Archive</a>
       </nav>
     </div>
@@ -97,8 +107,15 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Config -->
+  <script src="supabase-config.js"></script>
+
+  <!-- Application scripts -->
   <script src="utils.js"></script>
+  <script src="supabase.js"></script>
   <script src="data.js"></script>
   <script src="admin.js"></script>
 

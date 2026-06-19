@@ -13,9 +13,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
 
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:;">
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Skip to main content link for keyboard/screen reader users -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- ================================================================
        Site Header
@@ -132,7 +136,7 @@
   <!-- ================================================================
        Main Content Area
        ================================================================ -->
-  <main class="container">
+  <main class="container" id="main-content">
 
     <!-- Grid View -->
     <div class="view-panel active" id="grid-panel" role="tabpanel" aria-label="Archive grid view">
@@ -419,8 +423,15 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Config -->
+  <script src="supabase-config.js"></script>
+
+  <!-- Application scripts -->
   <script src="utils.js"></script>
+  <script src="supabase.js"></script>
   <script src="data.js"></script>
   <script src="script.js"></script>
 
