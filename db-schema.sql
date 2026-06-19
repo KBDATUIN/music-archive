@@ -108,7 +108,8 @@ CREATE TABLE IF NOT EXISTS reports (
 -- Row Level Security
 -- ============================================================
 ALTER TABLE entries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE pending_submissions ENABLE ROW LEVEL SECURITY;
+-- RLS disabled on pending_submissions — public form, no auth needed
+-- ALTER TABLE pending_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE entry_engagement ENABLE ROW LEVEL SECURITY;
