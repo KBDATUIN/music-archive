@@ -115,19 +115,31 @@ ALTER TABLE entry_engagement ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for entries and comments
+DROP POLICY IF EXISTS "Public read entries" ON entries;
 CREATE POLICY "Public read entries" ON entries FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read comments" ON comments;
 CREATE POLICY "Public read comments" ON comments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read comment_reactions" ON comment_reactions;
 CREATE POLICY "Public read comment_reactions" ON comment_reactions FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read entry_engagement" ON entry_engagement;
 CREATE POLICY "Public read entry_engagement" ON entry_engagement FOR SELECT USING (true);
 
 -- Anyone can insert into pending_submissions, comments, reactions, engagement, reports
+DROP POLICY IF EXISTS "Anyone can submit" ON pending_submissions;
 CREATE POLICY "Anyone can submit" ON pending_submissions FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can comment" ON comments;
 CREATE POLICY "Anyone can comment" ON comments FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can react" ON comment_reactions;
 CREATE POLICY "Anyone can react" ON comment_reactions FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can engage" ON entry_engagement;
 CREATE POLICY "Anyone can engage" ON entry_engagement FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can report" ON reports;
 CREATE POLICY "Anyone can report" ON reports FOR INSERT WITH CHECK (true);
 
 -- Delete own comments (by session_id)
+DROP POLICY IF EXISTS "Delete own comments" ON comments;
 CREATE POLICY "Delete own comments" ON comments FOR DELETE USING (session_id = current_setting('app.session_id', true));
+DROP POLICY IF EXISTS "Delete own reactions" ON comment_reactions;
 CREATE POLICY "Delete own reactions" ON comment_reactions FOR DELETE USING (session_id = current_setting('app.session_id', true));
+DROP POLICY IF EXISTS "Delete own engagement" ON entry_engagement;
 CREATE POLICY "Delete own engagement" ON entry_engagement FOR DELETE USING (session_id = current_setting('app.session_id', true));
