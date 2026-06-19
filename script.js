@@ -480,6 +480,21 @@ function renderTimeline() {
 
 function renderStats() {
   if (!dom.statsPanel) return;
+
+  if (fullEntries.length === 0) {
+    dom.statsPanel.innerHTML = `
+      <h2>Statistics</h2>
+      <div class="empty-state" style="display:block;margin-top:2rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h3>No data to chart</h3>
+        <p>Statistics will appear once entries are submitted and approved.</p>
+      </div>`;
+    return;
+  }
+
   dom.statsPanel.innerHTML = '<h2>Statistics</h2><div class="stats-grid"><div class="stats-group"><h3>By Genre</h3><div class="bar-chart" id="genre-stats-chart"></div></div><div class="stats-group"><h3>By Year</h3><div class="bar-chart" id="year-stats-chart"></div></div><div class="stats-group"><h3>By Status</h3><div class="bar-chart" id="status-stats-chart"></div></div></div>';
 
   const genreCounts = {};
@@ -866,7 +881,7 @@ function renderView() {
     case 'timeline': dom.timelineView.style.display = 'block'; renderTimeline(); break;
     case 'stats': dom.statsPanel.style.display = 'block'; renderStats(); break;
     case 'admin': dom.adminPanel.style.display = 'block'; renderAdmin(); break;
-    case 'submit': dom.submissionForm.style.display = 'block'; break;
+    case 'submit': dom.submissionForm.style.display = 'block'; dom.emptyState.style.display = 'none'; break;
     default: dom.gridPanel.style.display = 'block'; renderGrid();
   }
 }
