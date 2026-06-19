@@ -7,13 +7,13 @@
  * @module supabase
  */
 
-let supabase = null;
+let _sb = null;
 
 function getSupabase() {
-  if (supabase) return supabase;
+  if (_sb) return _sb;
   if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
-    supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-    return supabase;
+    _sb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    return _sb;
   }
   console.error('Supabase client not available. Check config and script loading order.');
   return null;
