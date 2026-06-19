@@ -1862,7 +1862,7 @@ function initSubmissionForm() {
     dom.uploadedImages = [];
     dom.imagesPreviewGrid.innerHTML = '';
     dom.formElement.reset();
-    dom.charCount.textContent = '0 characters';
+    dom.charCount.textContent = '0 / 50 min';
 
     if (result) {
       selectedGenres.length = 0;
