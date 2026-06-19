@@ -63,7 +63,7 @@ function initDomRefs() {
   dom.resultCount = $('#result-count');
   dom.filterCountBadge = $('#filter-count-badge');
   dom.clearAllBtn = $('#clear-all-btn');
-  dom.viewTabs = $('#view-tabs');
+
   dom.modal = $('#entry-modal');
   dom.modalBackdrop = $('#modal-backdrop');
   dom.modalContent = $('#modal-content');
@@ -1574,10 +1574,6 @@ function checkHashForEntry() {
 
 function switchView(view) {
   currentView = view;
-  $$('.view-tab', dom.viewTabs).forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.view === view);
-    tab.setAttribute('aria-selected', tab.dataset.view === view ? 'true' : 'false');
-  });
   $$('.nav-btn').forEach(btn => {
     if (btn.dataset.view === view) btn.setAttribute('aria-current', 'page');
     else btn.removeAttribute('aria-current');
@@ -1886,10 +1882,6 @@ function initSubmissionForm() {
    ======================================================================== */
 
 function initNavigation() {
-  $$('.view-tab', dom.viewTabs).forEach(tab => {
-    tab.addEventListener('click', () => switchView(tab.dataset.view));
-  });
-
   $$('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const view = btn.dataset.view;
