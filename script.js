@@ -1964,11 +1964,12 @@ function initNavigation() {
   updateStatusChips();
 
   // Year From/To dropdowns
-  function populateYearSelect(sel, exclude) {
+  function populateYearSelect(sel) {
     sel.innerHTML = '<option value="">' + (sel === dom.yearFrom ? 'From' : 'To') + '</option>';
     const { min, max } = getYearRange();
-    for (let y = max; y >= min; y--) {
-      if (exclude && exclude.includes(y)) continue;
+    const start = isFinite(max) ? max : new Date().getFullYear();
+    const end = isFinite(min) ? min : start - 5;
+    for (let y = start; y >= end; y--) {
       const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
