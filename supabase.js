@@ -31,9 +31,16 @@ async function seedEntriesIfNeeded() {
   if (error) { console.error('Seed check failed:', error); return; }
   if (count === 0 && typeof ENTRIES !== 'undefined') {
     const toInsert = ENTRIES.map(e => ({
-      ...e,
+      id: e.id,
+      name: e.name,
+      type: e.type,
       genres: JSON.stringify(e.genres),
+      date: e.date,
+      summary: e.summary,
+      status: e.status,
+      outcome: e.outcome,
       sources: JSON.stringify(e.sources),
+      image_url: e.imageUrl || null,
       image_urls: JSON.stringify(e.imageUrls || []),
       is_hardcoded: true
     }));
