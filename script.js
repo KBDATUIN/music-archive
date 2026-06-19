@@ -247,11 +247,6 @@ async function applyFilters() {
 
 function updateSearchAndChips() {
   if (dom.searchInput) dom.searchInput.value = filters.search;
-  if (dom.genreChips) {
-    $$('.genre-chip', dom.genreChips).forEach(chip => {
-      chip.classList.toggle('active', filters.genres.includes(chip.dataset.genre));
-    });
-  }
   if (dom.statusFilters) {
     $$('.status-chip', dom.statusFilters).forEach(chip => {
       chip.classList.toggle('active', filters.status.includes(chip.dataset.status));
@@ -364,16 +359,6 @@ function createEntryCard(entry) {
     <span class="entry-card-date">${formatDate(entry.date)}</span>
   `;
   card.appendChild(header);
-
-  const genresEl = document.createElement('div');
-  genresEl.className = 'entry-card-genres';
-  entry.genres.forEach(g => {
-    const tag = document.createElement('span');
-    tag.className = 'entry-card-genre-tag';
-    tag.textContent = g;
-    genresEl.appendChild(tag);
-  });
-  card.appendChild(genresEl);
 
   const summaryEl = document.createElement('p');
   summaryEl.className = 'entry-card-summary';
@@ -1278,7 +1263,6 @@ async function openModal(entry) {
     <div class="modal-meta">
       <span class="status-badge ${entry.status}">${statusLabels[entry.status] || capitalize(entry.status)}</span>
       <span class="modal-date">${formatDate(entry.date)}</span>
-      ${entry.genres.map(g => `<span class="entry-card-genre-tag">${escapeHtml(g)}</span>`).join('')}
     </div>
     ${imagesHtml}
     <p class="modal-summary">${escapeHtml(entry.summary)}</p>
@@ -1832,22 +1816,6 @@ function initNavigation() {
     sortSelect.value = sortBy;
     sortSelect.addEventListener('change', () => { sortBy = sortSelect.value; applyFilters(); });
   }
-
-  // Genre chips
-  getAllGenres().forEach(genre => {
-    const chip = document.createElement('button');
-    chip.className = 'genre-chip';
-    chip.dataset.genre = genre;
-    chip.textContent = genre;
-    chip.setAttribute('aria-label', `Filter by genre: ${genre}`);
-    chip.addEventListener('click', () => {
-      const idx = filters.genres.indexOf(genre);
-      if (idx > -1) filters.genres.splice(idx, 1);
-      else filters.genres.push(genre);
-      applyFilters();
-    });
-    dom.genreChips.appendChild(chip);
-  });
 
   // Status filters
   ['allegation', 'confirmed', 'resolved', 'disputed'].forEach(status => {

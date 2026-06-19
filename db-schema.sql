@@ -124,7 +124,9 @@ CREATE POLICY "Public read comment_reactions" ON comment_reactions FOR SELECT US
 DROP POLICY IF EXISTS "Public read entry_engagement" ON entry_engagement;
 CREATE POLICY "Public read entry_engagement" ON entry_engagement FOR SELECT USING (true);
 
--- Anyone can insert into pending_submissions, comments, reactions, engagement, reports
+-- Anyone can insert into entries (seed data) and pending_submissions
+DROP POLICY IF EXISTS "Anyone can seed entries" ON entries;
+CREATE POLICY "Anyone can seed entries" ON entries FOR INSERT WITH CHECK (true);
 DROP POLICY IF EXISTS "Anyone can submit" ON pending_submissions;
 CREATE POLICY "Anyone can submit" ON pending_submissions FOR INSERT WITH CHECK (true);
 DROP POLICY IF EXISTS "Anyone can comment" ON comments;
