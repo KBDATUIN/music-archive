@@ -265,7 +265,7 @@ function updateStatusChips() {
     chip.className = 'status-chip';
     chip.dataset.status = status;
     const count = counts[status] || 0;
-    chip.innerHTML = `${capitalize(status)} <span class="status-count">${count}</span>`;
+    chip.innerHTML = `${capitalize(status)} <span class="status-count${count === 0 ? ' zero' : ''}">${count}</span>`;
     chip.setAttribute('aria-label', `Filter by status: ${status} (${count} entries)`);
     chip.classList.toggle('active', filters.status.includes(status));
     chip.addEventListener('click', () => {
@@ -2018,6 +2018,7 @@ async function init() {
   filteredEntries = sortEntries(fullEntries);
   renderView();
   updateFilterBadge();
+  updateResultCount();
   updateSearchAndChips();
   syncUrlWithFilters();
   checkHashForEntry();
