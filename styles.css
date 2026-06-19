@@ -179,7 +179,11 @@ img {
   text-decoration: none;
 }
 
-/* .accent class was used for the two-tone FLAGGED logo — no longer applied */
+.site-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+}
 
 /* Nav */
 .main-nav {
