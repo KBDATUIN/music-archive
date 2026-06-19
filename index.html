@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A searchable, filterable documentary archive — FLAGGED. The public record, before you put them on the bill. Documenting sourced allegations and disputes involving artists and figures in the Philippine local underground music scene — hip hop, punk, metal, emo, hardcore, indie, and beyond.">
+  <meta name="theme-color" content="#0e0e0e">
+
+  <title>FLAGGED — the public record, before you put them on the bill</title>
+
+  <!-- Google Fonts: Inter + Oswald -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================================================================
+       Site Header
+       ================================================================ -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <div class="site-title">
+        <a href="index.html" aria-label="Home">
+          FLAGGED
+        </a>
+      </div>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+        <button class="nav-btn" data-view="grid" aria-current="page">Archive</button>
+        <button class="nav-btn" data-view="submit">Submit</button>
+        <button class="nav-btn" data-view="stats">Statistics</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================================================================
+       Hero & Disclaimer
+       ================================================================ -->
+  <section class="hero">
+    <div class="container">
+      <h1>
+        <span class="accent">FLA</span>GGED
+      </h1>
+      <div class="disclaimer" role="note" aria-label="Archive disclaimer">
+        <strong>Disclaimer:</strong> This archive documents publicly reported events involving public figures in the Philippine local underground music scene. It is maintained for educational and historical purposes only and is not affiliated with any artist, label, or organization. All information is attributed to named sources.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       Filters
+       ================================================================ -->
+  <section class="filters-section" aria-label="Filters">
+    <div class="container">
+      <div class="filters-header">
+        <h2>Filters</h2>
+        <div class="filter-count-badge" id="filter-count-badge" style="display:none;">
+          <span class="count">0</span> active
+          <button class="clear-all-btn" id="clear-all-btn">Clear all</button>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search by artist, band, or keyword…"
+          aria-label="Search entries"
+          autocomplete="off"
+        >
+        <button class="search-clear-btn" id="search-clear-btn" aria-label="Clear search" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="filter-row">
+        <!-- Genres -->
+        <div class="filter-group">
+          <label>Genres</label>
+          <div class="genre-chips" id="genre-chips" role="group" aria-label="Filter by genre"></div>
+        </div>
+
+        <!-- Status -->
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="status-filter" id="status-filters" role="group" aria-label="Filter by status"></div>
+        </div>
+
+        <!-- Year range -->
+        <div class="filter-group">
+          <label>Through year</label>
+          <div class="year-range-wrapper">
+            <input type="range" id="year-slider" min="2021" max="2024" value="2024" aria-label="Filter entries up to year">
+            <span class="year-display" id="year-display">2024</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       View Tabs
+       ================================================================ -->
+  <div class="container">
+    <div class="view-tabs" id="view-tabs" role="tablist" aria-label="View modes">
+      <button class="view-tab active" data-view="grid" role="tab" aria-selected="true">Grid</button>
+      <button class="view-tab" data-view="timeline" role="tab" aria-selected="false">Timeline</button>
+      <button class="view-tab" data-view="stats" role="tab" aria-selected="false">Statistics</button>
+      <button class="view-tab" data-view="submit" role="tab" aria-selected="false">Submit</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       Main Content Area
+       ================================================================ -->
+  <main class="container">
+
+    <!-- Grid View -->
+    <div class="view-panel active" id="grid-panel" role="tabpanel" aria-label="Archive grid view">
+      <div class="archive-grid" id="archive-grid">
+        <!-- Skeleton cards shown while JS loads and initializes -->
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-line wide"></div>
+          <div class="skeleton-line narrow"></div>
+          <div class="skeleton-genres">
+            <span class="skeleton-tag"></span>
+            <span class="skeleton-tag"></span>
+          </div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line wide" style="height:0.6rem;"></div>
+          <div class="skeleton-footer">
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+            <span class="skeleton-line tiny" style="margin:0;"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <h3>No entries found</h3>
+        <p>Try adjusting your filters or search query to find what you're looking for.</p>
+      </div>
+    </div>
+
+    <!-- Timeline View -->
+    <div class="view-panel" id="timeline-view" role="tabpanel" aria-label="Timeline view"></div>
+
+    <!-- Statistics Panel -->
+    <div class="view-panel stats-section" id="stats-panel" role="tabpanel" aria-label="Statistics">
+      <h2>Statistics</h2>
+      <div class="stats-grid">
+        <div class="stats-group">
+          <h3>By Genre</h3>
+          <div class="bar-chart" id="genre-stats-chart"></div>
+        </div>
+        <div class="stats-group">
+          <h3>By Year</h3>
+          <div class="bar-chart" id="year-stats-chart"></div>
+        </div>
+        <div class="stats-group">
+          <h3>By Status</h3>
+          <div class="bar-chart" id="status-stats-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Panel (hidden, triggered via ?admin=1 or Ctrl+Shift+A) -->
+    <div class="view-panel admin-section" id="admin-panel" role="tabpanel" aria-label="Admin panel">
+    </div>
+
+    <!-- Submission Form -->
+    <div class="view-panel submission-section" id="submission-form" role="tabpanel" aria-label="Submit an entry">
+
+      <!-- Style guide -->
+      <div class="submission-guide" role="note">
+        <strong>Editorial guidelines:</strong> Describe events factually. Attribute claims to named sources.
+        Distinguish allegations from established facts. Use neutral, documentary language.
+        Every submission must cite at least one external, verifiable source.
+        Focus on the Philippine local underground scene — hip hop, punk, metal, emo, hardcore, indie, and beyond.
+      </div>
+
+      <!-- PII warning banner -->
+      <!-- [ETHICS] This warning banner displays when the PII scanner detects phone numbers,
+           email addresses, or physical addresses in the form fields. It blocks submission
+           to prevent doxxing and protect both subjects and submitters. -->
+      <div class="warning-banner" id="warning-banner" role="alert">
+        <span id="warning-text"></span>
+      </div>
+
+      <!-- Submission confirmation -->
+      <div class="submit-confirmation" id="submit-confirmation">
+        <h3>Submission received</h3>
+        <p>Your submission has been logged for editorial review. Only verified, sourced entries are published. If your submission meets our guidelines, it will be added to the archive.</p>
+      </div>
+
+      <form id="submit-entry-form" novalidate>
+        <!-- Name -->
+        <div class="form-group">
+          <label for="entry-name">Artist / Band Name <span class="required" aria-hidden="true">*</span></label>
+          <input type="text" id="entry-name" placeholder="e.g., La Dispute" required>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label for="entry-type">Type <span class="required" aria-hidden="true">*</span></label>
+          <select id="entry-type" required>
+            <option value="">Select type…</option>
+            <option value="artist">Artist</option>
+            <option value="band">Band</option>
+            <option value="member">Member</option>
+          </select>
+        </div>
+
+        <!-- Genres (multi-select) -->
+        <div class="form-group">
+          <label for="entry-genres">Genre(s) <span class="required" aria-hidden="true">*</span></label>
+          <select id="entry-genres" multiple size="4" required>
+          </select>
+          <div class="form-hint">Hold Ctrl (Cmd on Mac) to select multiple genres.</div>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label for="entry-date">Date of first public report <span class="required" aria-hidden="true">*</span></label>
+          <input type="date" id="entry-date" required>
+        </div>
+
+        <!-- Summary -->
+        <div class="form-group">
+          <label for="entry-summary">Summary (50 characters minimum) <span class="required" aria-hidden="true">*</span></label>
+          <textarea id="entry-summary" placeholder="Describe what happened factually, attributing claims to named sources. Distinguish allegations from confirmed facts." minlength="50" required></textarea>
+          <div class="char-count" id="char-count">0 characters</div>
+        </div>
+
+        <!-- Source URLs -->
+        <div class="form-group">
+          <label>Source URL(s) <span class="required" aria-hidden="true">*</span></label>
+          <div id="source-urls">
+            <div class="source-url-group">
+              <input type="url" class="source-url" placeholder="https://example.com/article" aria-label="Source URL 1" required>
+            </div>
+          </div>
+          <button type="button" class="add-source-btn" id="add-source-btn">+ Add another source</button>
+          <div class="form-hint">At least one verifiable source is required.</div>
+        </div>
+
+        <!-- Reference image upload (optional, multiple) -->
+        <div class="form-group">
+          <label>Reference images <span style="color:var(--color-text-muted);font-weight:400;">(optional, upload multiple)</span></label>
+          <div class="form-hint" style="margin-bottom:0.75rem;">Upload photos of the subject as evidence. Images are resized to 300px and compressed client-side. Maximum 5MB per file. Only the editorial team sees these in pending submissions.</div>
+          <div class="images-preview-grid" id="images-preview-grid"></div>
+          <div class="add-image-wrapper">
+            <input type="file" id="entry-image-input" accept="image/*" multiple aria-label="Add reference images">
+          </div>
+          <div class="form-hint">Select multiple files at once or add them one at a time. Images appear as evidence for the editorial team.</div>
+        </div>
+
+        <!-- Submitter note (optional) -->
+        <div class="form-group">
+          <label for="submitter-note">Submitter note (optional)</label>
+          <textarea id="submitter-note" placeholder="Any additional context or notes for the editorial team…" rows="3"></textarea>
+          <div class="form-hint">This note is not published. It helps our editorial team verify your submission.</div>
+        </div>
+
+        <!-- Public figure checkbox -->
+        <!-- [ETHICS] This checkbox ensures submitters affirm the subject is a public figure
+             with a verifiable public profile. This prevents the archive from being used
+             to target private individuals or amplify unverified claims about non-public figures. -->
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="public-figure-check" required>
+            <label for="public-figure-check" class="checkbox-label">
+              I confirm that the subject of this submission is a public figure with a verifiable public profile in the alternative music community.
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">Submit for review</button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ================================================================
+       Scroll-to-top Button
+       ================================================================ -->
+  <button class="scroll-top-btn" id="scroll-top-btn" aria-label="Scroll to top" title="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18 15l-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <!-- ================================================================
+       Entry Detail Modal
+       ================================================================ -->
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true"></div>
+
+  <div
+    class="modal"
+    id="entry-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Entry details"
+    tabindex="-1"
+  >
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+
+  <!-- ================================================================
+       Footer
+       ================================================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-disclaimer">
+        <strong>Flagged.</strong> Not judged. Just documented. This archive records publicly reported events involving public figures in the Philippine local underground music scene. It is maintained for educational and historical purposes only. All information is attributed to named sources.
+      </div>
+      <div class="footer-meta">
+        FLAGGED &mdash; Independent documentary project.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FLAGGED — Admin panel. Review and approve/reject pending submissions about the Philippine local underground music scene.">
+  <meta name="theme-color" content="#0e0e0e">
+
+  <title>Admin — FLAGGED</title>
+
+  <!-- Google Fonts: Inter + Oswald -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================================================================
+       Admin Header
+       ================================================================ -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <div class="site-title">
+        <a href="admin.html" aria-label="Admin home">
+          <span class="accent">FLA</span>GGED Admin
+        </a>
+      </div>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Admin navigation">
+        <button class="nav-btn active" data-view="pending" aria-current="page">Pending</button>
+        <button class="nav-btn" data-view="approved">Approved</button>
+        <a href="index.html" class="nav-btn nav-back-link" style="text-decoration:none;">&larr; Main Archive</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================================================================
+       Admin Hero
+       ================================================================ -->
+  <section class="hero">
+    <div class="container">
+      <h1>
+        <span class="accent">Editorial</span> Dashboard
+      </h1>
+      <div class="disclaimer" role="note" aria-label="Admin notice">
+        <strong>Admin panel.</strong> Review FLAGGED submissions about the Philippine local underground music scene, verify sources and evidence, then approve or reject. Approved entries are stored in <code>localStorage</code> and appear on the public archive immediately.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       Admin Content
+       ================================================================ -->
+  <main class="container">
+
+    <!-- Pending Submissions -->
+    <div class="admin-section view-panel active" id="pending-panel" role="tabpanel" aria-label="Pending submissions">
+      <h2>Pending Submissions</h2>
+      <div class="admin-pending-list" id="pending-list"></div>
+      <div class="admin-empty" id="pending-empty">
+        <p>No pending submissions. When users submit entries via the public archive, they will appear here for review.</p>
+      </div>
+    </div>
+
+    <!-- Approved Submissions -->
+    <div class="admin-section view-panel" id="approved-panel" role="tabpanel" aria-label="Approved submissions">
+      <h2>Approved Submissions</h2>
+      <div class="admin-approved-list" id="approved-list"></div>
+      <div class="admin-empty" id="approved-empty">
+        <p>No approved submissions yet.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================================================================
+       Footer
+       ================================================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-disclaimer">
+        <strong>Admin panel</strong> — FLAGGED. Only accessible via this page.
+      </div>
+      <div class="footer-meta">
+        <a href="index.html">&larr; Return to public archive</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="utils.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+
+</body>
+</html>
