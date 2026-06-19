@@ -1866,13 +1866,6 @@ function initNavigation() {
 async function init() {
   initDomRefs();
 
-  // Seed hardcoded entries if first run
-  try {
-    await seedEntriesIfNeeded();
-  } catch (e) {
-    console.warn('Supabase seeding failed. Is Supabase configured?', e);
-  }
-
   // Load entries from Supabase
   fullEntries = await getAllEntries();
 
