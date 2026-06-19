@@ -293,6 +293,13 @@ img {
   }
 }
 
+.hero-logo {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  display: inline-block;
+}
+
 /* Hero accent removed — FLAGGED is now one solid color */
 
 .hero-tagline {
