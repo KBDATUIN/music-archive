@@ -509,15 +509,14 @@ img {
 }
 
 .status-filter {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.25rem;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background: var(--color-surface);
   min-height: 44px;
-  align-items: center;
   box-sizing: border-box;
 }
 
@@ -764,13 +763,7 @@ img {
   }
 }
 
-/* Status filter */
-.status-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
+/* Status filter chips */
 .status-chip {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -781,6 +774,9 @@ img {
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status-chip:focus-visible {
