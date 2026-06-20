@@ -93,6 +93,20 @@ function initDomRefs() {
 }
 
 /* ========================================================================
+   Hero Stats
+   ======================================================================== */
+
+function updateHeroStats() {
+  const el = document.getElementById('hero-stats');
+  if (!el) return;
+  const count = fullEntries.length;
+  const now = new Date();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dateStr = `${months[now.getMonth()]} ${now.getFullYear()}`;
+  el.textContent = `${count} entr${count === 1 ? 'y' : 'ies'} — updated ${dateStr}`;
+}
+
+/* ========================================================================
    Data Loading
    ======================================================================== */
 
@@ -258,6 +272,8 @@ async function applyFilters() {
   updateStatusChips();
   updateGenreFilterChips();
   syncUrlWithFilters();
+  const filtersSection = document.querySelector('.filters-section');
+  if (filtersSection) filtersSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 function updateGenreFilterChips() {
@@ -310,7 +326,8 @@ function updateResultCount() {
   if (shown === total) {
     dom.resultCount.textContent = `${total} entr${total === 1 ? 'y' : 'ies'}`;
   } else {
-    dom.resultCount.textContent = `Showing ${shown} of ${total} entr${total === 1 ? 'y' : 'ies'}`;
+    const hidden = total - shown;
+    dom.resultCount.textContent = `${shown} entr${shown === 1 ? 'y' : 'ies'} match your filters (${hidden} hidden)`;
   }
 }
 
@@ -330,8 +347,10 @@ function updateSearchAndChips() {
 }
 
 function updateFilterBadge() {
-  const count = filters.genres.length + filters.status.length + (filters.search ? 1 : 0) +
-    (filters.yearStart || filters.yearEnd ? 1 : 0);
+  let yearCount = 0;
+  if (filters.yearStart) yearCount++;
+  if (filters.yearEnd) yearCount++;
+  const count = filters.genres.length + filters.status.length + (filters.search ? 1 : 0) + yearCount;
   const badge = dom.filterCountBadge;
   if (badge) {
     const countEl = badge.querySelector('.count');
@@ -443,7 +462,8 @@ function createEntryCard(entry) {
     : entry.imageUrl ? [entry.imageUrl] : [];
 
   if (cardImages.length > 0) {
-    const isRevealed = sessionStorage.getItem(`img-${entry.id}`) === 'revealed';
+    const imagesRevealed = localStorage.getItem('amca_images_revealed') === 'yes';
+    const isRevealed = imagesRevealed || localStorage.getItem(`img-${entry.id}`) === 'revealed';
     const wrapper = document.createElement('div');
     wrapper.className = 'entry-card-image-wrapper';
     const img = document.createElement('img');
@@ -470,9 +490,9 @@ function createEntryCard(entry) {
 
     wrapper.addEventListener('click', (e) => {
       e.stopPropagation();
-      const revealed = sessionStorage.getItem(`img-${entry.id}`) === 'revealed';
+      const revealed = localStorage.getItem(`img-${entry.id}`) === 'revealed';
       if (!revealed) {
-        sessionStorage.setItem(`img-${entry.id}`, 'revealed');
+        localStorage.setItem(`img-${entry.id}`, 'revealed');
         img.classList.add('revealed');
       }
     });
@@ -488,9 +508,28 @@ function createEntryCard(entry) {
 
   const summaryEl = document.createElement('p');
   summaryEl.className = 'entry-card-summary';
-  const firstSentence = entry.summary.split('.')[0] + '.';
-  summaryEl.textContent = firstSentence;
+  const truncated = entry.summary.length > 120 ? entry.summary.slice(0, 120) + '…' : entry.summary;
+  summaryEl.textContent = truncated;
   card.appendChild(summaryEl);
+
+  const genreRow = document.createElement('div');
+  genreRow.className = 'entry-card-genres';
+  const maxGenres = 2;
+  const shown = entry.genres.slice(0, maxGenres);
+  const overflow = entry.genres.length - maxGenres;
+  shown.forEach(g => {
+    const tag = document.createElement('span');
+    tag.className = 'entry-card-genre-tag';
+    tag.textContent = g;
+    genreRow.appendChild(tag);
+  });
+  if (overflow > 0) {
+    const more = document.createElement('span');
+    more.className = 'entry-card-genre-tag genre-overflow';
+    more.textContent = `+${overflow} more`;
+    genreRow.appendChild(more);
+  }
+  card.appendChild(genreRow);
 
   const footer = document.createElement('div');
   footer.className = 'entry-card-footer';
@@ -1518,11 +1557,15 @@ async function openModal(entry) {
 
   // Click to reveal images
   dom.modalContent.querySelectorAll('.modal-image-gallery img').forEach(img => {
+    const imagesRevealed = localStorage.getItem('amca_images_revealed') === 'yes';
+    if (imagesRevealed) img.classList.add('revealed');
     img.addEventListener('click', (e) => {
       e.stopPropagation();
       img.classList.add('revealed');
     });
   });
+
+  history.pushState(null, '', `#entry-${entry.id}`);
 
   dom.modal.classList.add('open');
   dom.modalBackdrop.classList.add('open');
@@ -1534,6 +1577,8 @@ async function openModal(entry) {
   const closeModal = () => {
     const content = dom.modalContent;
     content.classList.add('closing');
+    const currentViewHash = currentView !== 'grid' ? `#view-${currentView}` : window.location.pathname;
+    history.pushState(null, '', currentViewHash);
     const onAnimationEnd = () => {
       dom.modal.classList.remove('open');
       dom.modalBackdrop.classList.remove('open');
@@ -1693,10 +1738,16 @@ function copyEntryLink(entryId) {
 
 function checkHashForEntry() {
   const hash = window.location.hash;
-  if (!hash.startsWith('#entry-')) return;
-  const entryId = hash.replace('#entry-', '');
-  const entry = fullEntries.find(e => e.id === entryId);
-  if (entry) setTimeout(() => openModal(entry), 300);
+  if (hash.startsWith('#entry-')) {
+    const entryId = hash.replace('#entry-', '');
+    const entry = fullEntries.find(e => e.id === entryId);
+    if (entry) setTimeout(() => openModal(entry), 300);
+  } else if (hash.startsWith('#view-')) {
+    const view = hash.replace('#view-', '');
+    if (['grid', 'timeline', 'stats', 'submit', 'admin'].includes(view)) {
+      switchView(view);
+    }
+  }
 }
 
 /* ========================================================================
@@ -1710,6 +1761,11 @@ function switchView(view) {
     else btn.removeAttribute('aria-current');
   });
   if (dom.mainNav) dom.mainNav.classList.remove('open');
+  if (view === 'grid') {
+    history.replaceState(null, '', window.location.pathname);
+  } else {
+    history.pushState(null, '', `#view-${view}`);
+  }
   renderView();
 }
 
@@ -1911,8 +1967,16 @@ function initSubmissionForm() {
 
   dom.summaryInput.addEventListener('input', () => {
     const len = dom.summaryInput.value.length;
-    dom.charCount.textContent = `${len} / 50 min`;
-    dom.charCount.className = 'char-count' + (len >= 50 ? ' valid' : '') + (len > 0 && len < 50 ? ' invalid' : '');
+    const MAX_SUMMARY = 1000;
+    if (len < 50) {
+      dom.charCount.textContent = `${len} characters (50 minimum)`;
+      dom.charCount.className = 'char-count invalid';
+    } else if (len >= 50 && len <= MAX_SUMMARY) {
+      dom.charCount.textContent = `${len} / ${MAX_SUMMARY}`;
+      dom.charCount.className = 'char-count valid';
+    } else {
+      dom.summaryInput.value = dom.summaryInput.value.slice(0, MAX_SUMMARY);
+    }
   });
 
   dom.addSourceBtn.addEventListener('click', () => {
@@ -2156,8 +2220,27 @@ function initNavigation() {
   populateYearSelect(dom.yearFrom);
   populateYearSelect(dom.yearTo);
 
+  function repopulateYearTo() {
+    const currentTo = dom.yearTo.value;
+    const fromVal = dom.yearFrom.value ? parseInt(dom.yearFrom.value, 10) : null;
+    const { min } = getYearRange();
+    const endYear = isFinite(min) ? min : new Date().getFullYear() - 5;
+    dom.yearTo.innerHTML = '<option value="">To</option>';
+    const startYear = fromVal || (isFinite(getYearRange().max) ? getYearRange().max : new Date().getFullYear());
+    for (let y = startYear; y >= endYear; y--) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      dom.yearTo.appendChild(opt);
+    }
+    if (currentTo && parseInt(currentTo) >= (fromVal || 0)) {
+      dom.yearTo.value = currentTo;
+    }
+  }
+
   dom.yearFrom.addEventListener('change', () => {
     filters.yearStart = dom.yearFrom.value ? parseInt(dom.yearFrom.value, 10) : null;
+    repopulateYearTo();
     if (dom.yearFrom.value && dom.yearTo.value && parseInt(dom.yearFrom.value) > parseInt(dom.yearTo.value)) {
       dom.yearTo.value = dom.yearFrom.value;
       filters.yearEnd = parseInt(dom.yearFrom.value);
@@ -2206,6 +2289,7 @@ async function init() {
   initNavigation();
   initSubmissionForm();
   initScrollToTop();
+  updateHeroStats();
 
   applyFiltersFromQuery();
   filteredEntries = sortEntries(fullEntries);
@@ -2217,6 +2301,14 @@ async function init() {
   checkHashForEntry();
 
   window.addEventListener('hashchange', checkHashForEntry);
+  window.addEventListener('popstate', () => {
+    if (dom.modal.classList.contains('open')) {
+      dom.modal.classList.remove('open');
+      dom.modalBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    checkHashForEntry();
+  });
 
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('admin') === '1') {

@@ -261,23 +261,30 @@ img {
 /* ── Hero / Disclaimer ────────────────────────────────────────────────── */
 
 .hero {
-  padding: 3rem 0 2rem;
+  padding: 2rem 0 1.5rem;
   text-align: center;
 }
 
-.hero h1 {
+.hero-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-title {
   font-family: var(--font-heading);
   font-size: 2.5rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 1rem;
   line-height: 1.15;
   animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero h1 {
+  .hero-title {
     animation: none;
   }
 }
@@ -293,41 +300,21 @@ img {
   }
 }
 
-.hero-logo {
-  max-width: 320px;
-  width: 100%;
-  height: auto;
-  display: inline-block;
-}
-
-/* Hero accent removed — FLAGGED is now one solid color */
-
 .hero-tagline {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--color-text-secondary);
-  font-style: italic;
-  margin-bottom: 1.75rem;
-  margin-top: -0.25rem;
   max-width: 520px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.5;
+  font-weight: 400;
 }
 
-.disclaimer {
-  max-width: 680px;
-  margin: 0 auto;
+.hero-stats {
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  padding: 1rem 1.25rem;
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
-.disclaimer strong {
-  color: var(--color-text);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  margin-top: 0.25rem;
 }
 
 /* ── Filters ──────────────────────────────────────────────────────────── */
@@ -505,6 +492,10 @@ img {
 /* Sort control */
 .genre-filter-row {
   margin-top: 0.75rem;
+}
+
+.genre-filter-row .filter-group {
+  min-width: 0;
 }
 
 .sort-wrapper {
@@ -1142,6 +1133,13 @@ img {
   background: var(--color-accent-dim);
   border: 1px solid var(--color-border-accent);
   color: var(--color-text-secondary);
+}
+
+.genre-overflow {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
 }
 
 .entry-card-summary {
@@ -2603,6 +2601,31 @@ img {
 .form-group select option {
   background: var(--color-surface-active);
   color: var(--color-text);
+}
+
+.private-note-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.private-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.private-hint {
+  color: var(--color-text-secondary) !important;
 }
 
 .form-hint {

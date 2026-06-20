@@ -50,16 +50,15 @@
   </header>
 
   <!-- ================================================================
-       Hero & Disclaimer
+       Hero & Tagline
        ================================================================ -->
   <section class="hero">
     <div class="container">
-      <h1>
-        <img src="flagged-logo.png" alt="FLAGGED" class="hero-logo">
+      <h1 class="hero-heading">
+        <span class="hero-title">FLAGGED</span>
+        <span class="hero-tagline">A public record of allegations involving artists in the Philippine underground music scene.</span>
       </h1>
-      <div class="disclaimer" role="note" aria-label="Archive disclaimer">
-        <strong>Disclaimer:</strong> This archive documents publicly reported events involving public figures in the Philippine local underground music scene. It is maintained for educational and historical purposes only and is not affiliated with any artist, label, or organization. All information is attributed to named sources.
-      </div>
+      <div class="hero-stats" id="hero-stats"></div>
     </div>
   </section>
 
@@ -367,9 +366,13 @@
 
         <!-- Private note for admin (not published) -->
         <div class="form-group">
-          <label for="submitter-note">Note for admin (private)</label>
+          <label for="submitter-note" class="private-note-label">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Note for admin
+            <span class="private-badge">Not published</span>
+          </label>
           <textarea id="submitter-note" placeholder="Include any context the admin should know…" rows="3"></textarea>
-          <div class="form-hint">This note is only visible to the admin team. It will not be published.</div>
+          <div class="form-hint private-hint">This note is only visible to the admin team. It will not be published.</div>
         </div>
 
         <!-- Public figure checkbox -->
