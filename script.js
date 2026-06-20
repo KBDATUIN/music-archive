@@ -148,13 +148,7 @@ function sortEntries(entries) {
    ======================================================================== */
 
 function statusTooltip(status) {
-  const tips = {
-    allegation: 'Publicly reported — not independently verified',
-    confirmed: 'Verified through multiple independent sources',
-    resolved: 'Acknowledged and addressed',
-    disputed: 'Contested by the subject'
-  };
-  return tips[status] || '';
+  return STATUS_EXPLANATIONS[status] || '';
 }
 
 function generateRandomName() {
@@ -306,7 +300,7 @@ function updateStatusChips() {
     chip.className = 'status-chip';
     chip.dataset.status = status;
     const count = counts[status] || 0;
-    chip.innerHTML = `${capitalize(status)} <span class="status-count${count === 0 ? ' zero' : ''}">${count}</span>`;
+    chip.innerHTML = `${STATUS_LABELS[status] || capitalize(status)} <span class="status-count${count === 0 ? ' zero' : ''}">${count}</span>`;
     chip.setAttribute('aria-label', `Filter by status: ${status} (${count} entries)`);
     chip.classList.toggle('active', filters.status.includes(status));
     chip.addEventListener('click', () => {
@@ -535,7 +529,7 @@ function createEntryCard(entry) {
   footer.className = 'entry-card-footer';
   const badge = document.createElement('span');
   badge.className = `status-badge ${entry.status}`;
-  badge.textContent = capitalize(entry.status);
+  badge.textContent = STATUS_LABELS[entry.status] || capitalize(entry.status);
   badge.setAttribute('title', statusTooltip(entry.status));
   footer.appendChild(badge);
   const srcCount = document.createElement('span');
@@ -618,7 +612,7 @@ function renderTimeline() {
         <div class="timeline-entry-genres">
           ${entry.genres.map(g => `<span class="entry-card-genre-tag">${escapeHtml(g)}</span>`).join('')}
         </div>
-        <span class="status-badge ${entry.status}" style="margin-top:0.5rem;display:inline-block;">${capitalize(entry.status)}</span>
+        <span class="status-badge ${entry.status}" style="margin-top:0.5rem;display:inline-block;">${STATUS_LABELS[entry.status] || capitalize(entry.status)}</span>
       `;
       item.addEventListener('click', () => openModal(entry));
       item.addEventListener('keydown', (e) => {
@@ -695,7 +689,7 @@ function renderStats() {
   if (statusChart) {
     statusChart.innerHTML = '';
     ['allegation', 'confirmed', 'resolved', 'disputed'].forEach(s => {
-      if (statusCounts[s]) statusChart.appendChild(createBarRow(capitalize(s), statusCounts[s], statusMax, `status-fill ${s}`));
+      if (statusCounts[s]) statusChart.appendChild(createBarRow(STATUS_LABELS[s] || capitalize(s), statusCounts[s], statusMax, `status-fill ${s}`));
     });
   }
 }
@@ -900,7 +894,7 @@ async function renderApprovedAdmin() {
         <h4>${escapeHtml(entry.name)}</h4>
         <button class="admin-btn edit-entry-btn" data-id="${escapeHtml(entry.id)}" style="font-size:0.72rem;">Edit</button>
       </div>
-      <p><strong>Type:</strong> ${escapeHtml(entry.type)} | <strong>Date:</strong> ${formatDate(entry.date)} | <span class="status-badge ${entry.status}" style="display:inline-block;">${capitalize(entry.status)}</span></p>
+      <p><strong>Type:</strong> ${escapeHtml(entry.type)} | <strong>Date:</strong> ${formatDate(entry.date)} | <span class="status-badge ${entry.status}" style="display:inline-block;">${STATUS_LABELS[entry.status] || capitalize(entry.status)}</span></p>
       <p><strong>Genres:</strong> ${entry.genres.map(escapeHtml).join(', ')}</p>
       <p><strong>Summary:</strong> ${escapeHtml(entry.summary)}</p>
       <p><strong>Sources:</strong> ${entry.sources.map(s => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label)}</a>`).join(', ')}</p>
@@ -945,7 +939,7 @@ function showEditModal(item, isPending) {
 
   const statuses = ['allegation', 'confirmed', 'resolved', 'disputed'];
   const outcomes = ['ongoing', 'apology', 'silence', 'legal', 'cleared'];
-  const statusOpts = statuses.map(s => `<option value="${s}" ${item.status === s ? 'selected' : ''}>${capitalize(s)}</option>`).join('');
+  const statusOpts = statuses.map(s => `<option value="${s}" ${item.status === s ? 'selected' : ''}>${STATUS_LABELS[s] || capitalize(s)}</option>`).join('');
   const outcomeOpts = outcomes.map(o => `<option value="${o}" ${item.outcome === o ? 'selected' : ''}>${capitalize(o)}</option>`).join('');
   const genreOpts = getAllGenres().map(g => `<option value="${g}" ${item.genres.includes(g) ? 'selected' : ''}>${escapeHtml(g)}</option>`).join('');
 
@@ -1483,9 +1477,9 @@ async function openModal(entry) {
   dom.modalContent.classList.remove('closing');
   dom.modalContent.innerHTML = '';
 
-  const statusLabels = { allegation: 'Allegation', confirmed: 'Confirmed', resolved: 'Resolved', disputed: 'Disputed' };
+  const statusLabels = STATUS_LABELS;
   const outcomeLabels = { apology: 'Apology issued', silence: 'No public response', legal: 'Legal action', cleared: 'Cleared', ongoing: 'Ongoing' };
-  const statusExplanations = { allegation: 'Publicly reported claim — not yet independently verified', confirmed: 'Verified through multiple independent sources', resolved: 'Acknowledged and addressed — apology, settlement, or legal resolution', disputed: 'Publicly contested by the subject — conflicting accounts exist' };
+  const statusExplanations = STATUS_EXPLANATIONS;
 
   const sourcesHtml = entry.sources.map(s =>
     `<li class="modal-source-item"><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(s.label)}</a></li>`

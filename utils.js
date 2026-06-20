@@ -28,6 +28,20 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+const STATUS_LABELS = {
+  allegation: 'Reported',
+  confirmed: 'Corroborated',
+  resolved: 'Addressed',
+  disputed: 'Contested'
+};
+
+const STATUS_EXPLANATIONS = {
+  allegation: 'Publicly reported claim — not yet independently verified',
+  confirmed: 'Verified through multiple independent sources',
+  resolved: 'Acknowledged and addressed — apology, settlement, or resolution',
+  disputed: 'Publicly contested by the subject — conflicting accounts exist'
+};
+
 function formatDate(isoString) {
   const d = new Date(isoString);
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });

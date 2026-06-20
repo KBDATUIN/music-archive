@@ -147,7 +147,7 @@ async function renderApproved() {
         <h4>${escapeHtml(entry.name)}</h4>
         <button class="admin-btn edit-entry-btn" data-id="${escapeHtml(entry.id)}" style="font-size:0.72rem;">Edit</button>
       </div>
-      <p><strong>Type:</strong> ${escapeHtml(entry.type)} | <strong>Date:</strong> ${formatDate(entry.date)} | <span class="status-badge ${entry.status}" style="display:inline-block;">${capitalize(entry.status)}</span></p>
+      <p><strong>Type:</strong> ${escapeHtml(entry.type)} | <strong>Date:</strong> ${formatDate(entry.date)} | <span class="status-badge ${entry.status}" style="display:inline-block;">${STATUS_LABELS[entry.status] || capitalize(entry.status)}</span></p>
       <p><strong>Genres:</strong> ${entry.genres.map(escapeHtml).join(', ')}</p>
       <p><strong>Summary:</strong> ${escapeHtml(entry.summary)}</p>
       <p><strong>Sources:</strong> ${entry.sources.map(s => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label)}</a>`).join(', ')}</p>
@@ -225,7 +225,7 @@ function showEditModal(item, isPending) {
       </div>
       <div class="form-group">
         <label>Status</label>
-        <select id="edit-status">${statuses.map(s => `<option value="${s}" ${item.status === s ? 'selected' : ''}>${capitalize(s)}</option>`).join('')}</select>
+        <select id="edit-status">${statuses.map(s => `<option value="${s}" ${item.status === s ? 'selected' : ''}>${STATUS_LABELS[s] || capitalize(s)}</option>`).join('')}</select>
       </div>
       <div class="form-group">
         <label>Outcome</label>
