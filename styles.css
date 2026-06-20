@@ -503,20 +503,25 @@ img {
 }
 
 /* Sort control */
+.genre-filter-row {
+  margin-top: 0.75rem;
+}
+
 .sort-wrapper {
   display: flex;
   align-items: center;
 }
 
 .status-filter {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background: var(--color-surface);
   min-height: 44px;
+  align-items: center;
   box-sizing: border-box;
 }
 
@@ -774,9 +779,6 @@ img {
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .status-chip:focus-visible {
