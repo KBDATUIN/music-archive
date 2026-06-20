@@ -29,17 +29,17 @@ function capitalize(str) {
 }
 
 const STATUS_LABELS = {
-  allegation: 'Reported',
-  confirmed: 'Corroborated',
-  resolved: 'Addressed',
-  disputed: 'Contested'
+  allegation: 'Allegation',
+  confirmed: 'Confirmed',
+  resolved: 'Resolved',
+  disputed: 'Disputed'
 };
 
 const STATUS_EXPLANATIONS = {
-  allegation: 'Publicly reported claim — not yet independently verified',
+  allegation: 'Publicly reported — not independently verified',
   confirmed: 'Verified through multiple independent sources',
-  resolved: 'Acknowledged and addressed — apology, settlement, or resolution',
-  disputed: 'Publicly contested by the subject — conflicting accounts exist'
+  resolved: 'Acknowledged and addressed',
+  disputed: 'Contested by the subject'
 };
 
 function formatDate(isoString) {

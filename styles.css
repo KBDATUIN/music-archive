@@ -507,13 +507,7 @@ img {
   display: flex;
   flex-wrap: nowrap;
   gap: 0.25rem;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  min-height: 44px;
   align-items: center;
-  box-sizing: border-box;
 }
 
 .sort-select,
@@ -761,12 +755,12 @@ img {
 
 /* Status filter chips */
 .status-chip {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: none;
+  border: none;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   padding: 0.2rem 0.35rem;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
@@ -783,20 +777,16 @@ img {
 .status-chip[data-status="disputed"]   { color: var(--color-disputed); }
 
 .status-chip.active[data-status="allegation"] {
-  background: var(--color-allegation-bg);
-  border-color: var(--color-allegation);
+  font-weight: 700;
 }
 .status-chip.active[data-status="confirmed"] {
-  background: var(--color-confirmed-bg);
-  border-color: var(--color-confirmed);
+  font-weight: 700;
 }
 .status-chip.active[data-status="resolved"] {
-  background: var(--color-resolved-bg);
-  border-color: var(--color-resolved);
+  font-weight: 700;
 }
 .status-chip.active[data-status="disputed"] {
-  background: var(--color-disputed-bg);
-  border-color: var(--color-disputed);
+  font-weight: 700;
 }
 
 /* Year range */
