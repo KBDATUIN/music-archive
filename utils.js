@@ -187,3 +187,33 @@ function renderAdminImages(entry, altName) {
 
   return `${label}<div class="admin-image-gallery">${gallery}</div>`;
 }
+
+/* ========================================================================
+   Cookie / LocalStorage Consent Banner
+   ======================================================================== */
+
+function initCookieConsent() {
+  const banner = document.getElementById('cookie-banner');
+  if (!banner) return;
+
+  if (localStorage.getItem('amca_cookie_consent') === 'accepted') {
+    banner.remove();
+    return;
+  }
+
+  // Show banner with a small delay so it doesn't flash on fast loads
+  requestAnimationFrame(() => {
+    banner.classList.add('visible');
+  });
+
+  const acceptBtn = document.getElementById('cookie-accept-btn');
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem('amca_cookie_consent', 'accepted');
+      banner.classList.remove('visible');
+      banner.addEventListener('transitionend', () => banner.remove(), { once: true });
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initCookieConsent);
