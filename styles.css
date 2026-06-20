@@ -755,15 +755,24 @@ img {
 
 /* Status filter chips */
 .status-chip {
-  background: none;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
   font-family: var(--font-body);
   font-size: 0.78rem;
-  padding: 0.2rem 0.35rem;
-  border-radius: 0;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+.status-chip:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
 }
 
 .status-chip:focus-visible {
@@ -771,22 +780,66 @@ img {
   outline-offset: 2px;
 }
 
-.status-chip[data-status="allegation"] { color: var(--color-allegation); }
-.status-chip[data-status="confirmed"]  { color: var(--color-confirmed); }
-.status-chip[data-status="resolved"]   { color: var(--color-resolved); }
-.status-chip[data-status="disputed"]   { color: var(--color-disputed); }
+.status-chip .status-icon {
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+}
+
+.status-chip:hover .status-icon {
+  opacity: 0.85;
+}
+
+.status-chip .status-label {
+  transition: color var(--transition-fast);
+}
+
+.status-chip .status-count {
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.5;
+  margin-left: 0.1rem;
+}
+
+.status-chip .status-count.zero {
+  display: none;
+}
+
+/* Inactive — colored text + icon */
+.status-chip[data-status="allegation"] .status-icon { color: var(--color-allegation); stroke: var(--color-allegation); fill: none; }
+.status-chip[data-status="allegation"] .status-label { color: var(--color-allegation); }
+.status-chip[data-status="confirmed"]  .status-icon { color: var(--color-confirmed); stroke: var(--color-confirmed); fill: none; }
+.status-chip[data-status="confirmed"]  .status-label { color: var(--color-confirmed); }
+.status-chip[data-status="resolved"]   .status-icon { color: var(--color-resolved); stroke: var(--color-resolved); fill: none; }
+.status-chip[data-status="resolved"]   .status-label { color: var(--color-resolved); }
+.status-chip[data-status="disputed"]   .status-icon { color: var(--color-disputed); stroke: var(--color-disputed); fill: none; }
+.status-chip[data-status="disputed"]   .status-label { color: var(--color-disputed); }
+
+/* Active — background fill + bold border */
+.status-chip.active {
+  border-width: 1.5px;
+  font-weight: 600;
+}
+
+.status-chip.active .status-icon {
+  opacity: 1;
+}
 
 .status-chip.active[data-status="allegation"] {
-  font-weight: 700;
+  background: var(--color-allegation-bg);
+  border-color: var(--color-allegation);
 }
 .status-chip.active[data-status="confirmed"] {
-  font-weight: 700;
+  background: var(--color-confirmed-bg);
+  border-color: var(--color-confirmed);
 }
 .status-chip.active[data-status="resolved"] {
-  font-weight: 700;
+  background: var(--color-resolved-bg);
+  border-color: var(--color-resolved);
 }
 .status-chip.active[data-status="disputed"] {
-  font-weight: 700;
+  background: var(--color-disputed-bg);
+  border-color: var(--color-disputed);
 }
 
 /* Year range */

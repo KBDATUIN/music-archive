@@ -300,7 +300,17 @@ function updateStatusChips() {
     chip.className = 'status-chip';
     chip.dataset.status = status;
     const count = counts[status] || 0;
-    chip.innerHTML = `${STATUS_LABELS[status] || capitalize(status)} <span class="status-count${count === 0 ? ' zero' : ''}">${count}</span>`;
+    const icons = {
+      allegation: '<polygon points="8,2 2,13 14,13"/>',
+      confirmed: '<path d="M3 8l3 3 7-7"/>',
+      resolved: '<circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/>',
+      disputed: '<path d="M4 4l8 8M12 4l-8 8"/>'
+    };
+    chip.innerHTML = `
+      <svg class="status-icon" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">${icons[status]}</svg>
+      <span class="status-label">${STATUS_LABELS[status] || capitalize(status)}</span>
+      <span class="status-count${count === 0 ? ' zero' : ''}">${count}</span>
+    `;
     chip.setAttribute('aria-label', `Filter by status: ${status} (${count} entries)`);
     chip.classList.toggle('active', filters.status.includes(status));
     chip.addEventListener('click', () => {
