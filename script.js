@@ -58,7 +58,6 @@ function initDomRefs() {
   dom.submissionForm = $('#submission-form');
   dom.searchInput = $('#search-input');
   dom.genreChips = $('#genre-chips');
-  dom.genreFilterChips = $('#genre-filter-chips');
   dom.statusFilters = $('#status-filters');
   dom.yearFrom = $('#year-from');
   dom.yearTo = $('#year-to');
@@ -264,30 +263,9 @@ async function applyFilters() {
   updateResultCount();
   updateSearchAndChips();
   updateStatusChips();
-  updateGenreFilterChips();
   syncUrlWithFilters();
   const filtersSection = document.querySelector('.filters-section');
   if (filtersSection) filtersSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-function updateGenreFilterChips() {
-  if (!dom.genreFilterChips) return;
-  const allGenres = getAllGenres();
-  dom.genreFilterChips.innerHTML = '';
-  allGenres.forEach(genre => {
-    const chip = document.createElement('button');
-    chip.className = 'genre-chip';
-    chip.dataset.genre = genre;
-    chip.textContent = genre;
-    chip.classList.toggle('active', filters.genres.includes(genre));
-    chip.addEventListener('click', () => {
-      const idx = filters.genres.indexOf(genre);
-      if (idx > -1) filters.genres.splice(idx, 1);
-      else filters.genres.push(genre);
-      applyFilters();
-    });
-    dom.genreFilterChips.appendChild(chip);
-  });
 }
 
 function updateStatusChips() {

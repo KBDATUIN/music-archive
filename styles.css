@@ -490,14 +490,6 @@ img {
 }
 
 /* Sort control */
-.genre-filter-row {
-  margin-top: 0.75rem;
-}
-
-.genre-filter-row .filter-group {
-  min-width: 0;
-}
-
 .sort-wrapper {
   display: flex;
   align-items: center;
@@ -580,20 +572,7 @@ img {
   color: var(--color-text);
 }
 
-/* Genre chips */
-.genre-filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  min-height: 44px;
-  align-items: center;
-  box-sizing: border-box;
-}
-
+/* Genre chips in submission form — keep for the form genre picker */
 .genre-chips {
   display: flex;
   flex-wrap: wrap;
