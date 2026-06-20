@@ -47,6 +47,7 @@
       <nav class="main-nav" id="main-nav" aria-label="Admin navigation">
         <button class="nav-btn active" data-view="pending" aria-current="page">Pending</button>
         <button class="nav-btn" data-view="approved">Approved</button>
+        <button class="nav-btn" data-view="contacts">Contacts</button>
         <button class="nav-btn" id="admin-export-btn" style="color:var(--color-text-muted);font-size:0.78rem;">Export</button>
         <button class="nav-btn" id="admin-logout-btn" style="color:var(--color-text-muted);font-size:0.78rem;">Sign Out</button>
         <a href="index.html" class="nav-btn nav-back-link" style="text-decoration:none;">&larr; Main Archive</a>
@@ -88,6 +89,15 @@
       <div class="admin-approved-list" id="approved-list"></div>
       <div class="admin-empty" id="approved-empty">
         <p>No approved submissions yet.</p>
+      </div>
+    </div>
+
+    <!-- Contacts -->
+    <div class="admin-section view-panel" id="contacts-panel" role="tabpanel" aria-label="Contact messages">
+      <h2>Contact Messages</h2>
+      <div class="admin-contacts-list" id="contacts-list"></div>
+      <div class="admin-empty" id="contacts-empty">
+        <p>No messages yet. When users send messages via the public archive, they will appear here.</p>
       </div>
     </div>
 

@@ -139,6 +139,26 @@ CREATE POLICY "Anyone can engage" ON entry_engagement FOR INSERT WITH CHECK (tru
 DROP POLICY IF EXISTS "Anyone can report" ON reports;
 CREATE POLICY "Anyone can report" ON reports FOR INSERT WITH CHECK (true);
 
+-- ============================================================
+-- Admin contacts (user messages to admin)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS admin_contacts (
+  id TEXT PRIMARY KEY,
+  entry_id TEXT REFERENCES entries(id) ON DELETE SET NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  contact_email TEXT DEFAULT '',
+  session_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  read BOOLEAN DEFAULT FALSE
+);
+
+ALTER TABLE admin_contacts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can contact admin" ON admin_contacts;
+CREATE POLICY "Anyone can contact admin" ON admin_contacts FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Admin read contacts" ON admin_contacts;
+CREATE POLICY "Admin read contacts" ON admin_contacts FOR SELECT USING (true);
+
 -- Delete own comments (by session_id)
 DROP POLICY IF EXISTS "Delete own comments" ON comments;
 CREATE POLICY "Delete own comments" ON comments FOR DELETE USING (session_id = current_setting('app.session_id', true));

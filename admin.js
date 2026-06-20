@@ -27,10 +27,13 @@ const dom = {};
 function initDomRefs() {
   dom.pendingPanel = $('#pending-panel');
   dom.approvedPanel = $('#approved-panel');
+  dom.contactsPanel = $('#contacts-panel');
   dom.pendingList = $('#pending-list');
   dom.pendingEmpty = $('#pending-empty');
   dom.approvedList = $('#approved-list');
   dom.approvedEmpty = $('#approved-empty');
+  dom.contactsList = $('#contacts-list');
+  dom.contactsEmpty = $('#contacts-empty');
   dom.hamburger = $('#hamburger-btn');
   dom.mainNav = $('#main-nav');
 }
@@ -178,6 +181,61 @@ async function renderApproved() {
 }
 
 /* ========================================================================
+   Render Contacts
+   ======================================================================== */
+
+async function renderContacts() {
+  if (!dom.contactsList || !dom.contactsEmpty) return;
+  dom.contactsList.innerHTML = '';
+
+  const messages = await fetchContactMessages();
+  if (messages.length === 0) { dom.contactsEmpty.style.display = 'block'; return; }
+  dom.contactsEmpty.style.display = 'none';
+
+  for (const msg of messages) {
+    const item = document.createElement('div');
+    item.className = 'admin-pending-item';
+    if (!msg.read) item.style.borderLeft = '3px solid var(--color-accent)';
+    const entryName = msg.entryId && typeof window.fullEntries !== 'undefined'
+      ? window.fullEntries.find(e => e.id === msg.entryId)?.name || 'Unknown'
+      : '';
+
+    item.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;flex-wrap:wrap;">
+        <h4>${escapeHtml(msg.subject)} ${!msg.read ? '<span style="color:var(--color-accent);font-size:0.7rem;">NEW</span>' : ''}</h4>
+        <div style="font-size:0.75rem;color:var(--color-text-muted);">${new Date(msg.createdAt).toLocaleString()}</div>
+      </div>
+      ${entryName ? `<p><strong>Entry:</strong> ${escapeHtml(entryName)}</p>` : ''}
+      <p style="white-space:pre-wrap;">${escapeHtml(msg.message)}</p>
+      ${msg.contactEmail ? `<p><strong>Email:</strong> ${escapeHtml(msg.contactEmail)}</p>` : ''}
+      <div class="admin-actions">
+        <button class="admin-btn approve mark-read-btn" data-id="${escapeHtml(msg.id)}" ${msg.read ? 'disabled' : ''}>${msg.read ? 'Read' : 'Mark Read'}</button>
+        <button class="admin-btn reject delete-contact-btn" data-id="${escapeHtml(msg.id)}">Delete</button>
+      </div>
+    `;
+
+    item.querySelector('.mark-read-btn')?.addEventListener('click', async () => {
+      await markContactRead(msg.id);
+      renderContacts();
+    });
+
+    item.querySelector('.delete-contact-btn')?.addEventListener('click', async () => {
+      const confirmed = await showConfirmModal('Delete this message?', 'Delete', 'Cancel');
+      if (!confirmed) return;
+      const ok = await deleteContactMessage(msg.id);
+      if (ok) {
+        showToast('Message deleted.');
+        renderContacts();
+      } else {
+        showToast('Failed to delete.', 'error');
+      }
+    });
+
+    dom.contactsList.appendChild(item);
+  }
+}
+
+/* ========================================================================
    Edit Modal
    ======================================================================== */
 
@@ -293,6 +351,7 @@ function switchAdminView(view) {
   currentView = view;
   dom.pendingPanel.style.display = view === 'pending' ? 'block' : 'none';
   dom.approvedPanel.style.display = view === 'approved' ? 'block' : 'none';
+  if (dom.contactsPanel) dom.contactsPanel.style.display = view === 'contacts' ? 'block' : 'none';
 
   $$('.nav-btn[data-view]').forEach(btn => {
     const isActive = btn.dataset.view === view;
@@ -302,7 +361,8 @@ function switchAdminView(view) {
   });
 
   if (view === 'pending') renderPending();
-  else renderApproved();
+  else if (view === 'approved') renderApproved();
+  else if (view === 'contacts') renderContacts();
 }
 
 /* ========================================================================

@@ -1520,6 +1520,10 @@ async function openModal(entry) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         Copy link
       </button>
+      <button class="contact-admin-btn" data-entry-id="${escapeHtml(entry.id)}" aria-label="Contact admin about this entry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Contact Admin
+      </button>
       <button class="report-btn" data-entry-id="${escapeHtml(entry.id)}" aria-label="Report this entry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
         Report
@@ -1589,6 +1593,15 @@ async function openModal(entry) {
     copyLinkBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       copyEntryLink(entry.id);
+    });
+  }
+
+  // Contact Admin button
+  const contactBtn = dom.modalContent.querySelector('.contact-admin-btn');
+  if (contactBtn) {
+    contactBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showContactModal(entry);
     });
   }
 
@@ -1680,6 +1693,70 @@ function showReportModal(entry) {
     }
   });
   backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
+}
+
+/* ========================================================================
+   Contact Admin Modal
+   ======================================================================== */
+
+function showContactModal(entry) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'confirm-backdrop';
+  const modal = document.createElement('div');
+  modal.className = 'confirm-modal';
+  modal.style.maxWidth = '500px';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+
+  modal.innerHTML = `
+    <h3 style="font-family:var(--font-heading);margin-bottom:0.75rem;text-transform:uppercase;">Contact Admin</h3>
+    <p style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:1rem;">Send a message to the editorial team about <strong>${escapeHtml(entry.name)}</strong>.</p>
+    <form id="contact-form">
+      <div class="form-group">
+        <label for="contact-subject">Subject</label>
+        <input type="text" id="contact-subject" placeholder="e.g., Add additional source, Correction, Question" required>
+      </div>
+      <div class="form-group">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" rows="4" placeholder="Provide details about your request..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="contact-email">Email <span style="color:var(--color-text-muted);font-weight:400;">(optional — for follow-up)</span></label>
+        <input type="email" id="contact-email" placeholder="you@example.com">
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;">
+        <button type="button" class="admin-btn" id="contact-cancel">Cancel</button>
+        <button type="submit" class="admin-btn approve">Send Message</button>
+      </div>
+    </form>
+  `;
+
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  requestAnimationFrame(() => backdrop.classList.add('confirm-open'));
+
+  modal.querySelector('#contact-cancel').addEventListener('click', () => backdrop.remove());
+  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
+
+  modal.querySelector('#contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const subject = modal.querySelector('#contact-subject').value.trim();
+    const message = modal.querySelector('#contact-message').value.trim();
+    const contactEmail = modal.querySelector('#contact-email').value.trim();
+    const ok = await submitContactMessage({
+      entryId: entry.id,
+      subject,
+      message,
+      contactEmail,
+      sessionId: getSessionId()
+    });
+    if (ok) {
+      showToast('Message sent to the editorial team.');
+      backdrop.remove();
+    } else {
+      showToast('Failed to send message.', 'error');
+    }
+  });
 }
 
 /* ========================================================================

@@ -445,6 +445,56 @@ async function submitReport(entryId, type, description, sessionId) {
 }
 
 /* ========================================================================
+   Admin Contacts (user messages to admin)
+   ======================================================================== */
+
+async function submitContactMessage({ entryId, subject, message, contactEmail, sessionId }) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const { error } = await sb.from('admin_contacts').insert({
+    id: `contact-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    entry_id: entryId || null,
+    subject: subject,
+    message: message,
+    contact_email: contactEmail || '',
+    session_id: sessionId
+  });
+  return !error;
+}
+
+async function fetchContactMessages() {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb.from('admin_contacts')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) return [];
+  return (data || []).map(row => ({
+    id: row.id,
+    entryId: row.entry_id,
+    subject: row.subject,
+    message: row.message,
+    contactEmail: row.contact_email,
+    sessionId: row.session_id,
+    createdAt: row.created_at,
+    read: row.read || false
+  }));
+}
+
+async function markContactRead(id) {
+  const sb = getSupabase();
+  if (!sb) return;
+  await sb.from('admin_contacts').update({ read: true }).eq('id', id);
+}
+
+async function deleteContactMessage(id) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const { error } = await sb.from('admin_contacts').delete().eq('id', id);
+  return !error;
+}
+
+/* ========================================================================
    Image Upload to Supabase Storage
    ======================================================================== */
 

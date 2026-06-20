@@ -3840,7 +3840,8 @@ img {
 
 /* ── Report Button ────────────────────────────────────────────────────── */
 
-.report-btn {
+.report-btn,
+.contact-admin-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -3853,7 +3854,6 @@ img {
   font-size: 0.78rem;
   cursor: pointer;
   transition: all var(--transition-fast);
-  margin-left: 0.5rem;
 }
 
 .report-btn:hover {
@@ -3862,7 +3862,14 @@ img {
   background: var(--color-allegation-bg);
 }
 
-.report-btn:focus-visible {
+.contact-admin-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.report-btn:focus-visible,
+.contact-admin-btn:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
