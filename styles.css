@@ -3899,6 +3899,30 @@ img {
   outline-offset: 2px;
 }
 
+.cookie-decline-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cookie-decline-btn:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.cookie-decline-btn:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
 @media (max-width: 480px) {
   .cookie-banner-content {
     flex-direction: column;

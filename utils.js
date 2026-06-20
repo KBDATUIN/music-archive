@@ -192,16 +192,21 @@ function renderAdminImages(entry, altName) {
    Cookie / LocalStorage Consent Banner
    ======================================================================== */
 
+function dismissCookieBanner(banner) {
+  banner.classList.remove('visible');
+  banner.addEventListener('transitionend', () => banner.remove(), { once: true });
+}
+
 function initCookieConsent() {
   const banner = document.getElementById('cookie-banner');
   if (!banner) return;
 
-  if (localStorage.getItem('amca_cookie_consent') === 'accepted') {
+  const consent = localStorage.getItem('amca_cookie_consent');
+  if (consent === 'accepted' || consent === 'declined') {
     banner.remove();
     return;
   }
 
-  // Show banner with a small delay so it doesn't flash on fast loads
   requestAnimationFrame(() => {
     banner.classList.add('visible');
   });
@@ -210,8 +215,15 @@ function initCookieConsent() {
   if (acceptBtn) {
     acceptBtn.addEventListener('click', () => {
       localStorage.setItem('amca_cookie_consent', 'accepted');
-      banner.classList.remove('visible');
-      banner.addEventListener('transitionend', () => banner.remove(), { once: true });
+      dismissCookieBanner(banner);
+    });
+  }
+
+  const declineBtn = document.getElementById('cookie-decline-btn');
+  if (declineBtn) {
+    declineBtn.addEventListener('click', () => {
+      localStorage.setItem('amca_cookie_consent', 'declined');
+      dismissCookieBanner(banner);
     });
   }
 }
