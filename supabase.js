@@ -233,6 +233,18 @@ async function approveSubmission(id) {
   return entry;
 }
 
+async function updatePendingSubmission(id, updates) {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const payload = { ...updates, updated_at: new Date().toISOString() };
+  if (updates.genres) payload.genres = JSON.stringify(updates.genres);
+  if (updates.sources) payload.sources = JSON.stringify(updates.sources);
+  if (updates.imageUrls) payload.image_urls = JSON.stringify(updates.imageUrls);
+  const { data, error } = await sb.from('pending_submissions').update(payload).eq('id', id).select().single();
+  if (error) { console.error('updatePendingSubmission error:', error); return null; }
+  return normalizePending(data);
+}
+
 async function rejectSubmission(id) {
   const sb = getSupabase();
   if (!sb) return false;

@@ -592,6 +592,19 @@ img {
 }
 
 /* Genre chips */
+.genre-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  min-height: 44px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
 .genre-chips {
   display: flex;
   flex-wrap: wrap;
@@ -1200,6 +1213,12 @@ img {
   opacity: 1;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .entry-card-view-link {
+    opacity: 0.6;
+  }
+}
+
 /* ── Blurred Image ────────────────────────────────────────────────────── */
 
 .entry-card-image-wrapper {
@@ -1280,6 +1299,10 @@ img {
   max-width: 400px;
   margin: 0 auto;
   line-height: 1.6;
+}
+
+.error-state svg {
+  color: var(--color-confirmed);
 }
 
 /* ── Modal ────────────────────────────────────────────────────────────── */
@@ -2029,11 +2052,61 @@ img {
 .comment-form-name-hint {
   font-size: 0.78rem;
   color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
 }
 
 .comment-form-name-hint strong {
   color: var(--color-text-secondary);
   font-weight: 600;
+}
+
+.comment-name-edit-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  line-height: 0;
+  transition: color var(--transition-fast);
+}
+
+.comment-name-edit-btn:hover {
+  color: var(--color-text);
+}
+
+.comment-name-edit-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.comment-name-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.comment-name-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.35rem 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+
+.comment-name-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-dim);
 }
 
 @keyframes commentIn {

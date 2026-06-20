@@ -260,7 +260,7 @@ function showEditModal(item, isPending) {
 
     let ok;
     if (isPending) {
-      ok = await rejectSubmission(item.id);
+      ok = await updatePendingSubmission(item.id, updates);
     } else {
       ok = await updateEntry(item.id, updates);
     }

@@ -37,6 +37,8 @@ let searchDebounce = null;
 let sortBy = 'date-desc';
 let pendingImageData = null;
 let reportEntryId = null;
+let gridPage = 1;
+const PER_PAGE = 24;
 
 /* ========================================================================
    DOM References
@@ -56,6 +58,7 @@ function initDomRefs() {
   dom.submissionForm = $('#submission-form');
   dom.searchInput = $('#search-input');
   dom.genreChips = $('#genre-chips');
+  dom.genreFilterChips = $('#genre-filter-chips');
   dom.statusFilters = $('#status-filters');
   dom.yearFrom = $('#year-from');
   dom.yearTo = $('#year-to');
@@ -246,13 +249,35 @@ async function logoutAdmin() {
    ======================================================================== */
 
 async function applyFilters() {
+  gridPage = 1;
   await loadFilteredEntries();
   renderView();
   updateFilterBadge();
   updateResultCount();
   updateSearchAndChips();
   updateStatusChips();
+  updateGenreFilterChips();
   syncUrlWithFilters();
+}
+
+function updateGenreFilterChips() {
+  if (!dom.genreFilterChips) return;
+  const allGenres = getAllGenres();
+  dom.genreFilterChips.innerHTML = '';
+  allGenres.forEach(genre => {
+    const chip = document.createElement('button');
+    chip.className = 'genre-chip';
+    chip.dataset.genre = genre;
+    chip.textContent = genre;
+    chip.classList.toggle('active', filters.genres.includes(genre));
+    chip.addEventListener('click', () => {
+      const idx = filters.genres.indexOf(genre);
+      if (idx > -1) filters.genres.splice(idx, 1);
+      else filters.genres.push(genre);
+      applyFilters();
+    });
+    dom.genreFilterChips.appendChild(chip);
+  });
 }
 
 function updateStatusChips() {
@@ -337,7 +362,13 @@ function clearAllFilters() {
 
 function renderGrid() {
   if (!dom.archiveGrid) return;
-  dom.archiveGrid.innerHTML = '';
+
+  const isInitialRender = dom.archiveGrid.querySelector('.empty-state, .load-more-btn') === null
+    && dom.archiveGrid.children.length === 0;
+
+  if (isInitialRender) {
+    dom.archiveGrid.innerHTML = '';
+  }
 
   if (filteredEntries.length === 0) {
     dom.archiveGrid.innerHTML = `
@@ -352,11 +383,50 @@ function renderGrid() {
     return;
   }
 
-  filteredEntries.forEach((entry, i) => {
-    const card = createEntryCard(entry);
-    card.style.animationDelay = `${i * 40}ms`;
-    dom.archiveGrid.appendChild(card);
-  });
+  const end = gridPage * PER_PAGE;
+  const visibleEntries = filteredEntries.slice(0, end);
+  const hasMore = end < filteredEntries.length;
+
+  if (isInitialRender || dom.archiveGrid.querySelector('.load-more-btn')) {
+    if (!isInitialRender) {
+      const existingCards = dom.archiveGrid.querySelectorAll('.entry-card');
+      const shown = existingCards.length;
+      for (let i = shown; i < visibleEntries.length; i++) {
+        const card = createEntryCard(visibleEntries[i]);
+        dom.archiveGrid.insertBefore(card, dom.archiveGrid.querySelector('.load-more-btn'));
+      }
+    } else {
+      visibleEntries.forEach((entry, i) => {
+        const card = createEntryCard(entry);
+        card.style.animationDelay = `${i * 40}ms`;
+        dom.archiveGrid.appendChild(card);
+      });
+    }
+  } else {
+    visibleEntries.forEach((entry, i) => {
+      const card = createEntryCard(entry);
+      card.style.animationDelay = `${i * 40}ms`;
+      dom.archiveGrid.appendChild(card);
+    });
+  }
+
+  const existingBtn = dom.archiveGrid.querySelector('.load-more-btn');
+  if (hasMore) {
+    if (existingBtn) {
+      existingBtn.textContent = `Load more (${filteredEntries.length - end} remaining)`;
+    } else {
+      const loadMore = document.createElement('button');
+      loadMore.className = 'load-more-btn';
+      loadMore.textContent = `Load more (${filteredEntries.length - end} remaining)`;
+      loadMore.addEventListener('click', () => {
+        gridPage++;
+        renderGrid();
+      });
+      dom.archiveGrid.appendChild(loadMore);
+    }
+  } else if (existingBtn) {
+    existingBtn.remove();
+  }
 }
 
 function createEntryCard(entry) {
@@ -904,7 +974,7 @@ function showEditModal(item, isPending) {
 
     let ok;
     if (isPending) {
-      ok = await rejectSubmission(item.id);
+      ok = await updatePendingSubmission(item.id, updates);
     } else {
       ok = await updateEntry(item.id, updates);
     }
@@ -1104,7 +1174,16 @@ async function buildEngagementHtml(entry) {
 
         <form class="comment-form" data-entry-id="${escapeHtml(entry.id)}">
           <div class="comment-form-header">
-            <span class="comment-form-name-hint">Commenting as <strong>${escapeHtml(getMyDisplayName())}</strong></span>
+            <span class="comment-form-name-hint">Commenting as <strong class="comment-display-name">${escapeHtml(getMyDisplayName())}</strong>
+              <button type="button" class="comment-name-edit-btn" aria-label="Edit display name" title="Change display name">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </span>
+            <div class="comment-name-edit-row" style="display:none">
+              <input type="text" class="comment-name-input" value="${escapeHtml(getMyDisplayName())}" maxlength="30" aria-label="Your display name">
+              <button type="button" class="comment-name-save-btn btn-small">Save</button>
+              <button type="button" class="comment-name-cancel-btn btn-small" style="border-color:var(--color-border);background:none;">Cancel</button>
+            </div>
           </div>
           <div class="comment-form-row">
             <textarea class="comment-text-input" placeholder="Share your thoughts, show support for those affected…" rows="2" required></textarea>
@@ -1175,15 +1254,22 @@ async function initEngagement(entry) {
   // Comment form
   const commentForm = dom.modalContent.querySelector('.comment-form');
   if (commentForm) {
+    const commentSubmitBtn = commentForm.querySelector('.comment-submit-btn');
     commentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const textInput = commentForm.querySelector('.comment-text-input');
       const text = textInput.value.trim();
       if (text.length < 2) { textInput.focus(); return; }
 
+      const origText = commentSubmitBtn.textContent;
+      commentSubmitBtn.disabled = true;
+      commentSubmitBtn.textContent = 'Posting…';
+
       const newComment = await addComment(entry.id, null, text, getMyDisplayName(), getSessionId(), null);
       if (newComment) {
         textInput.value = '';
+        commentSubmitBtn.textContent = origText;
+        commentSubmitBtn.disabled = false;
         showToast('Comment posted.');
         const engagementSection = dom.modalContent.querySelector('.engagement-section');
         if (engagementSection) {
@@ -1191,8 +1277,53 @@ async function initEngagement(entry) {
           initEngagement(entry);
         }
       } else {
+        commentSubmitBtn.textContent = origText;
+        commentSubmitBtn.disabled = false;
         showToast('Failed to post comment.', 'error');
       }
+    });
+  }
+
+  // Display name edit
+  const nameEditBtn = dom.modalContent.querySelector('.comment-name-edit-btn');
+  const nameEditRow = dom.modalContent.querySelector('.comment-name-edit-row');
+  const nameInput = dom.modalContent.querySelector('.comment-name-input');
+  const nameSaveBtn = dom.modalContent.querySelector('.comment-name-save-btn');
+  const nameCancelBtn = dom.modalContent.querySelector('.comment-name-cancel-btn');
+  const nameDisplay = dom.modalContent.querySelector('.comment-display-name');
+
+  if (nameEditBtn && nameEditRow) {
+    nameEditBtn.addEventListener('click', () => {
+      nameEditRow.style.display = 'flex';
+      nameInput.focus();
+      nameInput.select();
+    });
+  }
+
+  if (nameSaveBtn && nameInput && nameDisplay) {
+    nameSaveBtn.addEventListener('click', () => {
+      const val = nameInput.value.trim();
+      if (val && val.length <= 30) {
+        localStorage.setItem('amca_display_name', val);
+        nameDisplay.textContent = val;
+        nameEditRow.style.display = 'none';
+        showToast('Display name updated.');
+      } else if (!val) {
+        showToast('Name cannot be empty.', 'warning');
+      } else {
+        showToast('Name must be 30 characters or less.', 'warning');
+      }
+    });
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); nameSaveBtn.click(); }
+      if (e.key === 'Escape') { nameCancelBtn.click(); }
+    });
+  }
+
+  if (nameCancelBtn && nameEditRow) {
+    nameCancelBtn.addEventListener('click', () => {
+      nameInput.value = nameDisplay.textContent;
+      nameEditRow.style.display = 'none';
     });
   }
 
@@ -1642,8 +1773,8 @@ function initSubmissionForm() {
     const files = dom.imageInput.files;
     if (!files || files.length === 0) return;
     for (const file of files) {
-      if (file.size > 10 * 1024 * 1024) {
-        showToast(`"${file.name}" is larger than 10MB. Skipping.`, 'warning');
+      if (file.size > 5 * 1024 * 1024) {
+        showToast(`"${file.name}" is larger than 5MB. Skipping.`, 'warning');
         continue;
       }
       const dataUrl = await processImageFile(file);
@@ -1731,16 +1862,52 @@ function initSubmissionForm() {
     dom.formGenreChips.appendChild(chip);
   });
 
-  // "+ Add custom" chip
+  // "+ Add custom" inline input
+  const customRow = document.createElement('div');
+  customRow.className = 'custom-genre-row';
+  customRow.style.display = 'none';
+  const customInput = document.createElement('input');
+  customInput.type = 'text';
+  customInput.placeholder = 'Enter custom genre…';
+  customInput.setAttribute('aria-label', 'Custom genre name');
+  const customAddBtn = document.createElement('button');
+  customAddBtn.type = 'button';
+  customAddBtn.className = 'btn-small';
+  customAddBtn.textContent = 'Add';
+  const customCancelBtn = document.createElement('button');
+  customCancelBtn.type = 'button';
+  customCancelBtn.className = 'btn-small';
+  customCancelBtn.textContent = 'Cancel';
+  customCancelBtn.style.borderColor = 'var(--color-border)';
+  customCancelBtn.style.background = 'none';
+  customRow.appendChild(customInput);
+  customRow.appendChild(customAddBtn);
+  customRow.appendChild(customCancelBtn);
+
+  customAddBtn.addEventListener('click', () => {
+    const val = customInput.value.trim();
+    if (val) { addGenre(val); customInput.value = ''; }
+    customRow.style.display = 'none';
+  });
+  customCancelBtn.addEventListener('click', () => {
+    customInput.value = '';
+    customRow.style.display = 'none';
+  });
+  customInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); customAddBtn.click(); }
+    if (e.key === 'Escape') { customCancelBtn.click(); }
+  });
+
   const customChip = document.createElement('button');
   customChip.type = 'button';
   customChip.className = 'genre-chip add-custom-chip';
   customChip.textContent = '+ Add custom';
   customChip.addEventListener('click', () => {
-    const custom = prompt('Enter a custom genre:');
-    if (custom) addGenre(custom);
+    customRow.style.display = customRow.style.display === 'none' ? 'flex' : 'none';
+    if (customRow.style.display === 'flex') customInput.focus();
   });
   dom.formGenreChips.appendChild(customChip);
+  dom.formGenreChips.appendChild(customRow);
 
   dom.summaryInput.addEventListener('input', () => {
     const len = dom.summaryInput.value.length;
@@ -1875,6 +2042,24 @@ function initSubmissionForm() {
       showToast('Failed to submit. Please check your Supabase configuration.', 'error');
     }
   });
+
+  const submitAnotherBtn = document.getElementById('submit-another-btn');
+  if (submitAnotherBtn) {
+    submitAnotherBtn.addEventListener('click', () => {
+      dom.submitConfirm.classList.remove('visible');
+      dom.formElement.style.display = '';
+      dom.formElement.reset();
+      selectedGenres.length = 0;
+      updateGenreTags();
+      syncChips();
+      updateHiddenInput();
+      dom.uploadedImages = [];
+      dom.imagesPreviewGrid.innerHTML = '';
+      dom.charCount.textContent = '0 / 50 min';
+      dom.warningBanner.classList.remove('visible');
+      dom.formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 }
 
 /* ========================================================================
@@ -1999,8 +2184,24 @@ function initNavigation() {
 async function init() {
   initDomRefs();
 
-  // Load entries from Supabase
-  fullEntries = await getAllEntries();
+  try {
+    fullEntries = await getAllEntries();
+  } catch (err) {
+    console.error('Failed to load entries:', err);
+    const grid = dom.archiveGrid;
+    if (grid) {
+      grid.innerHTML = `
+        <div class="empty-state error-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h3>Failed to load archive</h3>
+          <p>Could not connect to the database. Please check your connection and try again.</p>
+          <button class="submit-btn" onclick="location.reload()" style="margin-top:1rem;display:inline-block;">Retry</button>
+        </div>`;
+    }
+    return;
+  }
 
   initNavigation();
   initSubmissionForm();
